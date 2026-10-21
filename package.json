@@ -1,0 +1,13 @@
+{
+  "name": "personal-bg-remover",
+  "private": true,
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "dev": "bun --filter web dev",
+    "dev:api": "bun --filter api dev",
+    "build": "bun --filter web build",
+    "build:api": "bun --filter api build"
+  }
+}
