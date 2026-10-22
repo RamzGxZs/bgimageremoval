@@ -8,24 +8,6 @@ interface DropzoneProps {
   progress?: ProcessProgress;
 }
 
-const SAMPLE_IMAGES = [
-  {
-    id: 'portrait',
-    title: 'Potret',
-    url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=1000&q=85',
-  },
-  {
-    id: 'product',
-    title: 'Produk',
-    url: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=1000&q=85',
-  },
-  {
-    id: 'car',
-    title: 'Mobil',
-    url: 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1000&q=85',
-  },
-];
-
 export const Dropzone: React.FC<DropzoneProps> = ({
   onImageSelected,
   isProcessing,
@@ -33,7 +15,6 @@ export const Dropzone: React.FC<DropzoneProps> = ({
 }) => {
   const [isDragOver, setIsDragOver] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [isFetchingSample, setIsFetchingSample] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Global clipboard paste (Ctrl+V / Cmd+V)
@@ -101,23 +82,6 @@ export const Dropzone: React.FC<DropzoneProps> = ({
     if (e.target.files && e.target.files.length > 0) {
       const file = e.target.files[0];
       validateAndSelect(file, file.name);
-    }
-  };
-
-  const handleSelectSample = async (sample: (typeof SAMPLE_IMAGES)[0]) => {
-    if (isProcessing || isFetchingSample) return;
-    setIsFetchingSample(true);
-    setErrorMessage(null);
-
-    try {
-      const response = await fetch(sample.url);
-      if (!response.ok) throw new Error('Gagal memuat sampel gambar.');
-      const blob = await response.blob();
-      validateAndSelect(blob, `sample-${sample.id}.jpg`);
-    } catch {
-      setErrorMessage('Gagal memuat sampel gambar.');
-    } finally {
-      setIsFetchingSample(false);
     }
   };
 
@@ -211,24 +175,6 @@ export const Dropzone: React.FC<DropzoneProps> = ({
         <div className="flex items-center gap-2.5 p-3.5 rounded-xl border border-red-200 dark:border-red-900 bg-red-50 dark:bg-red-950/30 text-red-700 dark:text-red-400 text-sm">
           <AlertCircle className="w-5 h-5 shrink-0" />
           <p>{errorMessage}</p>
-        </div>
-      )}
-
-      {/* Minimal sample links - Readable size */}
-      {!isProcessing && (
-        <div className="flex items-center justify-center gap-3 text-sm text-zinc-500 pt-1">
-          <span className="font-medium text-zinc-600 dark:text-zinc-400">Coba contoh:</span>
-          {SAMPLE_IMAGES.map((sample) => (
-            <button
-              key={sample.id}
-              type="button"
-              onClick={() => handleSelectSample(sample)}
-              disabled={isFetchingSample}
-              className="px-2.5 py-1 rounded-md bg-zinc-100 dark:bg-zinc-900 hover:bg-zinc-200 dark:hover:bg-zinc-800 text-zinc-800 dark:text-zinc-200 text-xs sm:text-sm font-medium transition-colors cursor-pointer disabled:opacity-50"
-            >
-              {sample.title}
-            </button>
-          ))}
         </div>
       )}
     </div>
