@@ -1,39 +1,27 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Upload, Link as LinkIcon, Sparkles, AlertCircle, Sliders } from 'lucide-react';
-import type { ModelType } from '../types';
-import { Button } from './ui/button';
-import { Input } from './ui/input';
-import { Card } from './ui/card';
+import { Upload, Loader2, AlertCircle } from 'lucide-react';
+import type { ProcessProgress } from '../types';
 
 interface DropzoneProps {
   onImageSelected: (file: Blob, filename?: string) => void;
   isProcessing: boolean;
-  selectedModel: ModelType;
-  onModelChange: (model: ModelType) => void;
-  autoResize: boolean;
-  onAutoResizeChange: (enabled: boolean) => void;
+  progress?: ProcessProgress;
 }
 
 const SAMPLE_IMAGES = [
   {
     id: 'portrait',
     title: 'Potret',
-    subtitle: 'Rambut & detail tepi',
-    thumbnail: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=75',
     url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=1000&q=85',
   },
   {
     id: 'product',
     title: 'Produk',
-    subtitle: 'Sepatu & e-commerce',
-    thumbnail: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=200&q=75',
     url: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=1000&q=85',
   },
   {
     id: 'car',
-    title: 'Kendaraan',
-    subtitle: 'Mobil & kontur tegas',
-    thumbnail: 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=200&q=75',
+    title: 'Mobil',
     url: 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1000&q=85',
   },
 ];
@@ -41,18 +29,14 @@ const SAMPLE_IMAGES = [
 export const Dropzone: React.FC<DropzoneProps> = ({
   onImageSelected,
   isProcessing,
-  selectedModel,
-  onModelChange,
-  autoResize,
-  onAutoResizeChange,
+  progress,
 }) => {
   const [isDragOver, setIsDragOver] = useState(false);
-  const [urlInput, setUrlInput] = useState('');
-  const [isFetchingUrl, setIsFetchingUrl] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [showSettings, setShowSettings] = useState(false);
+  const [isFetchingSample, setIsFetchingSample] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Global clipboard paste (Ctrl+V / Cmd+V)
   useEffect(() => {
     const handlePaste = (e: ClipboardEvent) => {
       if (isProcessing) return;
@@ -79,13 +63,13 @@ export const Dropzone: React.FC<DropzoneProps> = ({
     const validTypes = ['image/jpeg', 'image/png', 'image/webp'];
 
     if (!validTypes.includes(file.type) && !name?.match(/\.(jpg|jpeg|png|webp)$/i)) {
-      setErrorMessage('Format gambar tidak didukung. Harap gunakan JPEG, PNG, atau WebP.');
+      setErrorMessage('Format gambar tidak didukung. Gunakan JPG, PNG, atau WebP.');
       return;
     }
 
     const maxSize = 25 * 1024 * 1024;
     if (file.size > maxSize) {
-      setErrorMessage('Ukuran gambar terlalu besar (maksimal 25 MB).');
+      setErrorMessage('Ukuran gambar maksimal 25 MB.');
       return;
     }
 
@@ -120,40 +104,9 @@ export const Dropzone: React.FC<DropzoneProps> = ({
     }
   };
 
-  const handleFetchUrl = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!urlInput.trim() || isProcessing) return;
-
-    setIsFetchingUrl(true);
-    setErrorMessage(null);
-
-    try {
-      const response = await fetch(urlInput.trim());
-      if (!response.ok) throw new Error('Gagal mengunduh gambar dari URL.');
-
-      const contentType = response.headers.get('content-type') || '';
-      if (!contentType.startsWith('image/')) {
-        throw new Error('URL tidak mengarah ke file gambar yang valid.');
-      }
-
-      const blob = await response.blob();
-      const filename = urlInput.split('/').pop()?.split('?')[0] || 'url-image.png';
-      validateAndSelect(blob, filename);
-      setUrlInput('');
-    } catch (err: unknown) {
-      setErrorMessage(
-        err instanceof Error
-          ? err.message
-          : 'Gagal mengambil gambar. Pastikan URL dapat diakses publik atau izin CORS mengizinkan.'
-      );
-    } finally {
-      setIsFetchingUrl(false);
-    }
-  };
-
   const handleSelectSample = async (sample: (typeof SAMPLE_IMAGES)[0]) => {
-    if (isProcessing) return;
-    setIsFetchingUrl(true);
+    if (isProcessing || isFetchingSample) return;
+    setIsFetchingSample(true);
     setErrorMessage(null);
 
     try {
@@ -162,27 +115,28 @@ export const Dropzone: React.FC<DropzoneProps> = ({
       const blob = await response.blob();
       validateAndSelect(blob, `sample-${sample.id}.jpg`);
     } catch {
-      setErrorMessage('Gagal memuat sampel gambar. Silakan coba lagi.');
+      setErrorMessage('Gagal memuat sampel gambar.');
     } finally {
-      setIsFetchingUrl(false);
+      setIsFetchingSample(false);
     }
   };
 
   return (
-    <div className="w-full max-w-2xl mx-auto space-y-4">
-      {/* Drag & Drop Main Zone */}
+    <div className="w-full max-w-xl mx-auto space-y-3">
+      {/* Dropzone Container */}
       <div
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
         onClick={() => !isProcessing && fileInputRef.current?.click()}
-        className={`relative cursor-pointer rounded-xl border border-dashed p-10 text-center transition-colors
+        className={`relative min-h-[240px] rounded-xl border border-dashed transition-all flex flex-col items-center justify-center p-8 text-center select-none
           ${
-            isDragOver
-              ? 'border-zinc-950 bg-zinc-100 dark:border-zinc-100 dark:bg-zinc-800/60'
-              : 'border-zinc-300 dark:border-zinc-800 bg-white dark:bg-zinc-950 hover:border-zinc-400 dark:hover:border-zinc-700'
+            isProcessing
+              ? 'border-zinc-300 dark:border-zinc-800 bg-zinc-50/60 dark:bg-zinc-900/40 cursor-default'
+              : isDragOver
+              ? 'border-zinc-900 bg-zinc-100 dark:border-zinc-100 dark:bg-zinc-800/60 cursor-pointer'
+              : 'border-zinc-300 dark:border-zinc-800 bg-white dark:bg-zinc-950 hover:border-zinc-400 dark:hover:border-zinc-700 cursor-pointer shadow-xs'
           }
-          ${isProcessing ? 'pointer-events-none opacity-50' : ''}
         `}
       >
         <input
@@ -191,33 +145,67 @@ export const Dropzone: React.FC<DropzoneProps> = ({
           accept="image/png,image/jpeg,image/webp"
           onChange={handleFileChange}
           className="hidden"
+          disabled={isProcessing}
         />
 
-        <div className="flex flex-col items-center justify-center space-y-3">
-          <div className="w-10 h-10 rounded-full border border-zinc-200 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-900 flex items-center justify-center text-zinc-900 dark:text-zinc-100">
-            <Upload className="w-5 h-5" />
-          </div>
+        {isProcessing ? (
+          // In-place loading state with progress
+          <div className="flex flex-col items-center justify-center space-y-4 w-full max-w-xs animate-in fade-in duration-200">
+            <Loader2 className="w-7 h-7 text-zinc-900 dark:text-zinc-100 animate-spin" />
 
-          <div className="space-y-1">
-            <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
-              Pilih file gambar atau tarik ke sini
-            </p>
-            <p className="text-xs text-zinc-500 dark:text-zinc-400">
-              Mendukung JPEG, PNG, WebP hingga 25 MB
-            </p>
-          </div>
+            <div className="space-y-1 w-full text-center">
+              <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
+                {progress?.stage === 'downloading'
+                  ? 'Mengunduh model AI...'
+                  : 'Memproses gambar...'}
+              </p>
+              <p className="text-xs text-zinc-500 dark:text-zinc-400 truncate">
+                {progress?.message || 'Menghapus latar belakang...'}
+              </p>
+            </div>
 
-          <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900 text-[11px] text-zinc-600 dark:text-zinc-400">
-            <span>Atau tekan</span>
-            <kbd className="px-1.5 py-0.5 rounded bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 font-mono text-[10px]">
-              Ctrl+V
-            </kbd>
-            <span>untuk paste langsung</span>
+            {/* Progress bar */}
+            <div className="w-full space-y-1.5">
+              <div className="w-full h-1.5 rounded-full bg-zinc-200 dark:bg-zinc-800 overflow-hidden">
+                <div
+                  className="h-full bg-zinc-900 dark:bg-zinc-100 transition-all duration-300 rounded-full"
+                  style={{ width: `${Math.max(5, progress?.percent || 0)}%` }}
+                />
+              </div>
+              <div className="flex justify-end">
+                <span className="text-[11px] font-mono text-zinc-500">
+                  {progress?.percent || 0}%
+                </span>
+              </div>
+            </div>
           </div>
-        </div>
+        ) : (
+          // Default upload prompt
+          <div className="flex flex-col items-center justify-center space-y-3">
+            <div className="w-10 h-10 rounded-full border border-zinc-200 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-900 flex items-center justify-center text-zinc-800 dark:text-zinc-200">
+              <Upload className="w-4 h-4" />
+            </div>
+
+            <div className="space-y-1">
+              <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
+                Pilih gambar atau tarik ke sini
+              </p>
+              <p className="text-xs text-zinc-500">
+                PNG, JPG, atau WebP hingga 25 MB
+              </p>
+            </div>
+
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900 text-[11px] text-zinc-600 dark:text-zinc-400">
+              <span>atau tekan</span>
+              <kbd className="px-1.5 py-0.5 rounded bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 font-mono text-[10px]">
+                Ctrl+V
+              </kbd>
+            </div>
+          </div>
+        )}
       </div>
 
-      {/* Error Message */}
+      {/* Error message if any */}
       {errorMessage && (
         <div className="flex items-center gap-2 p-3 rounded-lg border border-red-200 dark:border-red-900 bg-red-50 dark:bg-red-950/30 text-red-700 dark:text-red-400 text-xs">
           <AlertCircle className="w-4 h-4 shrink-0" />
@@ -225,140 +213,23 @@ export const Dropzone: React.FC<DropzoneProps> = ({
         </div>
       )}
 
-      {/* URL Ingestion & Settings Button */}
-      <div className="flex gap-2 items-center">
-        <form onSubmit={handleFetchUrl} className="flex-1 flex gap-2">
-          <div className="relative flex-1">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-zinc-400">
-              <LinkIcon className="w-3.5 h-3.5" />
-            </div>
-            <Input
-              type="url"
-              value={urlInput}
-              onChange={(e) => setUrlInput(e.target.value)}
-              placeholder="Tempel tautan URL gambar..."
-              disabled={isProcessing || isFetchingUrl}
-              className="pl-8 text-xs"
-            />
-          </div>
-          <Button
-            type="submit"
-            variant="secondary"
-            size="sm"
-            disabled={!urlInput.trim() || isProcessing || isFetchingUrl}
-          >
-            {isFetchingUrl ? 'Memuat...' : 'Ambil'}
-          </Button>
-        </form>
-
-        <Button
-          type="button"
-          variant={showSettings ? 'secondary' : 'outline'}
-          size="sm"
-          onClick={() => setShowSettings(!showSettings)}
-        >
-          <Sliders className="w-3.5 h-3.5" />
-          <span>Pengaturan AI</span>
-        </Button>
-      </div>
-
-      {/* Settings Panel */}
-      {showSettings && (
-        <Card className="p-4 space-y-4">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
-            <div>
-              <span className="font-medium text-zinc-900 dark:text-zinc-100 block">Model Inferensi</span>
-              <span className="text-zinc-500">Pilih model segmentasi objek</span>
-            </div>
-            <div className="flex items-center gap-1 bg-zinc-100 dark:bg-zinc-800 p-1 rounded-md">
-              <button
-                type="button"
-                onClick={() => onModelChange('isnet_fp16')}
-                className={`px-2.5 py-1 rounded text-xs transition-colors cursor-pointer ${
-                  selectedModel === 'isnet_fp16'
-                    ? 'bg-white dark:bg-zinc-950 text-zinc-900 dark:text-zinc-50 shadow-xs font-medium'
-                    : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900'
-                }`}
-              >
-                isnet_fp16 (Standar)
-              </button>
-              <button
-                type="button"
-                onClick={() => onModelChange('isnet_quint8')}
-                className={`px-2.5 py-1 rounded text-xs transition-colors cursor-pointer ${
-                  selectedModel === 'isnet_quint8'
-                    ? 'bg-white dark:bg-zinc-950 text-zinc-900 dark:text-zinc-50 shadow-xs font-medium'
-                    : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900'
-                }`}
-              >
-                isnet_quint8 (Cepat)
-              </button>
-              <button
-                type="button"
-                onClick={() => onModelChange('isnet')}
-                className={`px-2.5 py-1 rounded text-xs transition-colors cursor-pointer ${
-                  selectedModel === 'isnet'
-                    ? 'bg-white dark:bg-zinc-950 text-zinc-900 dark:text-zinc-50 shadow-xs font-medium'
-                    : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900'
-                }`}
-              >
-                isnet (Presisi)
-              </button>
-            </div>
-          </div>
-
-          <div className="flex items-center justify-between pt-3 border-t border-zinc-200 dark:border-zinc-800 text-xs">
-            <div>
-              <span className="font-medium text-zinc-900 dark:text-zinc-100 block">
-                Batasi Resolusi (Maks 2048px)
-              </span>
-              <span className="text-zinc-500">
-                Otomatis resize dimensi raksasa agar pemrosesan hemat memori
-              </span>
-            </div>
-            <input
-              type="checkbox"
-              checked={autoResize}
-              onChange={(e) => onAutoResizeChange(e.target.checked)}
-              className="h-4 w-4 rounded border-zinc-300 text-zinc-900 accent-zinc-900 focus:ring-zinc-950 dark:accent-zinc-100"
-            />
-          </div>
-        </Card>
-      )}
-
-      {/* Sample Images */}
-      <div className="space-y-2 pt-2">
-        <div className="flex items-center gap-1.5 text-xs text-zinc-500 font-medium">
-          <Sparkles className="w-3.5 h-3.5" />
-          <span>Atau coba sampel gambar</span>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+      {/* Minimal sample links without marketing copywriting */}
+      {!isProcessing && (
+        <div className="flex items-center justify-center gap-2 text-xs text-zinc-500 pt-1">
+          <span>Coba contoh:</span>
           {SAMPLE_IMAGES.map((sample) => (
             <button
               key={sample.id}
               type="button"
               onClick={() => handleSelectSample(sample)}
-              disabled={isProcessing || isFetchingUrl}
-              className="flex items-center gap-2.5 p-2 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 hover:bg-zinc-50 dark:hover:bg-zinc-900 text-left transition-colors disabled:opacity-50 cursor-pointer"
+              disabled={isFetchingSample}
+              className="hover:text-zinc-900 dark:hover:text-zinc-100 underline underline-offset-4 cursor-pointer disabled:opacity-50"
             >
-              <img
-                src={sample.thumbnail}
-                alt={sample.title}
-                className="w-10 h-10 rounded-md object-cover shrink-0"
-              />
-              <div className="min-w-0">
-                <span className="block text-xs font-medium text-zinc-900 dark:text-zinc-100">
-                  {sample.title}
-                </span>
-                <span className="block text-[11px] text-zinc-500 truncate">
-                  {sample.subtitle}
-                </span>
-              </div>
+              {sample.title}
             </button>
           ))}
         </div>
-      </div>
+      )}
     </div>
   );
 };
