@@ -175,7 +175,7 @@ export const EditorCanvas: React.FC<EditorCanvasProps> = ({
   return (
     <div className="flex flex-col items-center w-full space-y-2">
       {/* Top Toolbar */}
-      <div className="flex items-center justify-between w-full max-w-4xl px-1">
+      <div className="flex items-center justify-between w-full px-1">
         <div className="flex items-center gap-2">
           <Button
             type="button"
@@ -187,11 +187,6 @@ export const EditorCanvas: React.FC<EditorCanvasProps> = ({
             <SplitSquareVertical className="w-3.5 h-3.5" />
             <span>Before / After Slider</span>
           </Button>
-          {isComparing && (
-            <span className="text-[11px] text-zinc-500">
-              Kiri: Asli | Kanan: Edit
-            </span>
-          )}
         </div>
 
         {/* Zoom Controls */}
@@ -244,10 +239,22 @@ export const EditorCanvas: React.FC<EditorCanvasProps> = ({
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
         onMouseLeave={handleMouseLeave}
-        className={`relative w-full max-w-4xl h-[460px] sm:h-[540px] rounded-xl overflow-hidden border border-zinc-200 dark:border-zinc-800 select-none flex items-center justify-center ${
+        className={`relative w-full h-[440px] sm:h-[500px] lg:h-[540px] rounded-xl overflow-hidden border border-zinc-200 dark:border-zinc-800 select-none flex items-center justify-center ${
           bgConfig.type === 'transparent' ? 'bg-checkerboard' : 'bg-zinc-900'
         } ${isBrushActive ? 'cursor-none' : scale > 1 ? 'cursor-grab' : 'cursor-default'}`}
       >
+        {/* Subtle Labels in Comparison Mode */}
+        {isComparing && (
+          <>
+            <div className="absolute top-3 left-3 z-10 pointer-events-none px-2 py-0.5 rounded bg-black/60 backdrop-blur-xs text-[10px] font-medium text-white shadow-xs">
+              Foto Asli
+            </div>
+            <div className="absolute top-3 right-3 z-10 pointer-events-none px-2 py-0.5 rounded bg-black/60 backdrop-blur-xs text-[10px] font-medium text-white shadow-xs">
+              Hasil Potongan
+            </div>
+          </>
+        )}
+
         <div
           style={{
             transform: `translate(${panOffset.x}px, ${panOffset.y}px) scale(${scale})`,
@@ -258,7 +265,7 @@ export const EditorCanvas: React.FC<EditorCanvasProps> = ({
         >
           <canvas
             ref={canvasRef}
-            className="max-w-full max-h-[440px] sm:max-h-[520px] object-contain"
+            className="max-w-full max-h-[420px] sm:max-h-[480px] lg:max-h-[520px] object-contain"
             style={{
               aspectRatio: `${width} / ${height}`,
             }}

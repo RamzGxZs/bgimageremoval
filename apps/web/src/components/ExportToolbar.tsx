@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Download, Copy, Check, CloudUpload, RotateCcw } from 'lucide-react';
 import { copyImageToClipboard, downloadBlob } from '../lib/imageUtils';
 import { Button } from './ui/button';
+import { Card, CardContent } from './ui/card';
 
 interface ExportToolbarProps {
   onExport: (format: 'image/png' | 'image/webp') => Promise<Blob>;
@@ -66,106 +67,114 @@ export const ExportToolbar: React.FC<ExportToolbarProps> = ({
   };
 
   return (
-    <div className="flex flex-wrap items-center justify-between gap-3 p-3 bg-white dark:bg-zinc-950 rounded-xl border border-zinc-200 dark:border-zinc-800 w-full max-w-4xl mx-auto shadow-xs">
-      {/* Left */}
-      <Button
-        type="button"
-        variant="ghost"
-        size="sm"
-        onClick={onReset}
-        className="text-xs text-zinc-600 dark:text-zinc-400"
-      >
-        <RotateCcw className="w-3.5 h-3.5" />
-        <span>Ganti Gambar</span>
-      </Button>
+    <Card className="shadow-xs">
+      <CardContent className="p-4 space-y-3">
+        {/* Format Selector & Download Primary Button */}
+        <div className="space-y-2">
+          <div className="flex items-center justify-between text-xs">
+            <span className="font-medium text-zinc-500">Format Ekspor</span>
+            <div className="flex items-center bg-zinc-100 dark:bg-zinc-900 p-0.5 rounded-md">
+              <button
+                type="button"
+                onClick={() => setFormat('image/png')}
+                className={`px-2.5 py-1 rounded text-xs transition-colors cursor-pointer ${
+                  format === 'image/png'
+                    ? 'bg-white dark:bg-zinc-950 text-zinc-950 dark:text-zinc-50 shadow-xs font-medium'
+                    : 'text-zinc-500 hover:text-zinc-900'
+                }`}
+              >
+                PNG
+              </button>
+              <button
+                type="button"
+                onClick={() => setFormat('image/webp')}
+                className={`px-2.5 py-1 rounded text-xs transition-colors cursor-pointer ${
+                  format === 'image/webp'
+                    ? 'bg-white dark:bg-zinc-950 text-zinc-950 dark:text-zinc-50 shadow-xs font-medium'
+                    : 'text-zinc-500 hover:text-zinc-900'
+                }`}
+              >
+                WebP
+              </button>
+            </div>
+          </div>
 
-      {/* Right */}
-      <div className="flex flex-wrap items-center gap-2">
-        {/* Format Selector */}
-        <div className="flex items-center bg-zinc-100 dark:bg-zinc-900 p-0.5 rounded-md">
-          <button
+          <Button
             type="button"
-            onClick={() => setFormat('image/png')}
-            className={`px-2 py-1 rounded text-xs transition-colors cursor-pointer ${
-              format === 'image/png'
-                ? 'bg-white dark:bg-zinc-950 text-zinc-950 dark:text-zinc-50 shadow-xs font-medium'
-                : 'text-zinc-500 hover:text-zinc-900'
-            }`}
+            variant="default"
+            size="default"
+            onClick={handleDownload}
+            disabled={isExporting}
+            className="w-full justify-center text-sm font-semibold"
           >
-            PNG
-          </button>
-          <button
-            type="button"
-            onClick={() => setFormat('image/webp')}
-            className={`px-2 py-1 rounded text-xs transition-colors cursor-pointer ${
-              format === 'image/webp'
-                ? 'bg-white dark:bg-zinc-950 text-zinc-950 dark:text-zinc-50 shadow-xs font-medium'
-                : 'text-zinc-500 hover:text-zinc-900'
-            }`}
-          >
-            WebP
-          </button>
+            <Download className="w-4 h-4" />
+            <span>Unduh {format === 'image/png' ? 'PNG' : 'WebP'}</span>
+          </Button>
         </div>
 
-        {/* Copy Image Button */}
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          onClick={handleCopyClipboard}
-          disabled={isExporting}
-          className="text-xs"
-        >
-          {copied ? (
-            <>
-              <Check className="w-3.5 h-3.5 text-zinc-900 dark:text-zinc-100" />
-              <span>Tersalin</span>
-            </>
-          ) : (
-            <>
-              <Copy className="w-3.5 h-3.5" />
-              <span>Copy</span>
-            </>
-          )}
-        </Button>
-
-        {/* Save to Cloud Button */}
-        {onSaveToCloud && (
+        {/* Secondary Action Buttons */}
+        <div className="grid grid-cols-2 gap-2 pt-1 border-t border-zinc-200 dark:border-zinc-800">
           <Button
             type="button"
             variant="outline"
             size="sm"
-            onClick={handleCloudSave}
-            disabled={isSavingToCloud}
-            className="text-xs"
+            onClick={handleCopyClipboard}
+            disabled={isExporting}
+            className="text-xs justify-center"
           >
-            {savedCloud ? (
+            {copied ? (
               <>
                 <Check className="w-3.5 h-3.5" />
-                <span>Tersimpan</span>
+                <span>Tersalin</span>
               </>
             ) : (
               <>
-                <CloudUpload className="w-3.5 h-3.5" />
-                <span>{isSavingToCloud ? 'Menyimpan...' : 'Simpan Cloud'}</span>
+                <Copy className="w-3.5 h-3.5" />
+                <span>Copy Image</span>
               </>
             )}
           </Button>
-        )}
 
-        {/* Download Button */}
-        <Button
-          type="button"
-          variant="default"
-          size="sm"
-          onClick={handleDownload}
-          disabled={isExporting}
-          className="text-xs font-semibold px-4"
-        >
-          <Download className="w-3.5 h-3.5" />
-          <span>Unduh {format === 'image/png' ? 'PNG' : 'WebP'}</span>
-        </Button>
-      </div>
-    </div>
+          {onSaveToCloud ? (
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={handleCloudSave}
+              disabled={isSavingToCloud}
+              className="text-xs justify-center"
+            >
+              {savedCloud ? (
+                <>
+                  <Check className="w-3.5 h-3.5" />
+                  <span>Tersimpan</span>
+                </>
+              ) : (
+                <>
+                  <CloudUpload className="w-3.5 h-3.5" />
+                  <span>{isSavingToCloud ? 'Menyimpan...' : 'Simpan Cloud'}</span>
+                </>
+              )}
+            </Button>
+          ) : (
+            <div />
+          )}
+        </div>
+
+        {/* Reset / Change Image Link */}
+        <div className="pt-1 flex justify-center">
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={onReset}
+            className="text-xs text-zinc-500 hover:text-zinc-900 h-7"
+          >
+            <RotateCcw className="w-3 h-3" />
+            <span>Ganti Gambar Lain</span>
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
   );
 };

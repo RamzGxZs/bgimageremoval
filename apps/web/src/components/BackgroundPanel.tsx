@@ -14,8 +14,6 @@ interface BackgroundPanelProps {
 const PRESET_COLORS = [
   { name: 'Putih', value: '#ffffff', border: true },
   { name: 'Hitam', value: '#09090b' },
-  { name: 'Merah Pasfoto', value: '#dc2626' },
-  { name: 'Biru Pasfoto', value: '#2563eb' },
   { name: 'Abu-abu Terang', value: '#f4f4f5', border: true },
   { name: 'Abu-abu Gelap', value: '#52525b' },
   { name: 'Kuning', value: '#eab308' },
@@ -122,40 +120,76 @@ export const BackgroundPanel: React.FC<BackgroundPanelProps> = ({
           </div>
         </div>
 
-        {/* Color Palette */}
+        {/* Color Palette & Passport Photo Badges */}
         {bgConfig.type === 'color' && (
-          <div className="space-y-2">
-            <div className="flex flex-wrap items-center gap-2">
-              {PRESET_COLORS.map((preset) => (
+          <div className="space-y-3 animate-in fade-in duration-150">
+            {/* Dedicated Passport Photo Quick Buttons */}
+            <div className="space-y-1.5">
+              <span className="text-[11px] font-medium text-zinc-500">Preset Pasfoto Resmi</span>
+              <div className="grid grid-cols-2 gap-2">
                 <button
-                  key={preset.value}
                   type="button"
-                  onClick={() => handleColorSelect(preset.value)}
-                  className={`w-7 h-7 rounded-full transition-transform hover:scale-105 cursor-pointer ${
-                    preset.border ? 'border border-zinc-200 dark:border-zinc-700' : ''
-                  } ${
-                    bgConfig.color.toLowerCase() === preset.value.toLowerCase()
-                      ? 'ring-2 ring-zinc-950 ring-offset-2 dark:ring-zinc-100 dark:ring-offset-zinc-950'
-                      : ''
+                  onClick={() => handleColorSelect('#dc2626')}
+                  className={`flex items-center gap-2 p-2 rounded-md border text-xs font-medium transition-all cursor-pointer ${
+                    bgConfig.color.toLowerCase() === '#dc2626'
+                      ? 'border-zinc-950 dark:border-zinc-100 bg-zinc-50 dark:bg-zinc-900 ring-1 ring-zinc-950 dark:ring-zinc-100'
+                      : 'border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700'
                   }`}
-                  style={{ backgroundColor: preset.value }}
-                  title={preset.name}
-                />
-              ))}
+                >
+                  <span className="w-3.5 h-3.5 rounded-full bg-[#dc2626] shrink-0" />
+                  <span className="truncate">Merah Pasfoto</span>
+                </button>
 
-              <label className="w-7 h-7 rounded-full border border-zinc-300 dark:border-zinc-700 overflow-hidden cursor-pointer flex items-center justify-center hover:scale-105 transition-transform bg-zinc-50 dark:bg-zinc-900">
-                <input
-                  type="color"
-                  value={bgConfig.color}
-                  onChange={(e) => handleColorSelect(e.target.value)}
-                  className="opacity-0 w-0 h-0"
-                />
-                <Palette className="w-3.5 h-3.5 text-zinc-600 dark:text-zinc-300" />
-              </label>
+                <button
+                  type="button"
+                  onClick={() => handleColorSelect('#2563eb')}
+                  className={`flex items-center gap-2 p-2 rounded-md border text-xs font-medium transition-all cursor-pointer ${
+                    bgConfig.color.toLowerCase() === '#2563eb'
+                      ? 'border-zinc-950 dark:border-zinc-100 bg-zinc-50 dark:bg-zinc-900 ring-1 ring-zinc-950 dark:ring-zinc-100'
+                      : 'border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700'
+                  }`}
+                >
+                  <span className="w-3.5 h-3.5 rounded-full bg-[#2563eb] shrink-0" />
+                  <span className="truncate">Biru Pasfoto</span>
+                </button>
+              </div>
+            </div>
 
-              <span className="text-xs font-mono text-zinc-500 uppercase ml-1">
-                {bgConfig.color}
-              </span>
+            {/* Standard Swatches & Custom Color Picker */}
+            <div className="space-y-1.5 pt-1">
+              <span className="text-[11px] font-medium text-zinc-500">Warna Lainnya</span>
+              <div className="flex flex-wrap items-center gap-2">
+                {PRESET_COLORS.map((preset) => (
+                  <button
+                    key={preset.value}
+                    type="button"
+                    onClick={() => handleColorSelect(preset.value)}
+                    className={`w-7 h-7 rounded-full transition-transform hover:scale-105 cursor-pointer ${
+                      preset.border ? 'border border-zinc-200 dark:border-zinc-700' : ''
+                    } ${
+                      bgConfig.color.toLowerCase() === preset.value.toLowerCase()
+                        ? 'ring-2 ring-zinc-950 ring-offset-2 dark:ring-zinc-100 dark:ring-offset-zinc-950'
+                        : ''
+                    }`}
+                    style={{ backgroundColor: preset.value }}
+                    title={preset.name}
+                  />
+                ))}
+
+                <label className="w-7 h-7 rounded-full border border-zinc-300 dark:border-zinc-700 overflow-hidden cursor-pointer flex items-center justify-center hover:scale-105 transition-transform bg-zinc-50 dark:bg-zinc-900">
+                  <input
+                    type="color"
+                    value={bgConfig.color}
+                    onChange={(e) => handleColorSelect(e.target.value)}
+                    className="opacity-0 w-0 h-0"
+                  />
+                  <Palette className="w-3.5 h-3.5 text-zinc-600 dark:text-zinc-300" />
+                </label>
+
+                <span className="text-xs font-mono text-zinc-500 uppercase ml-1">
+                  {bgConfig.color}
+                </span>
+              </div>
             </div>
           </div>
         )}

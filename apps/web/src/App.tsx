@@ -3,6 +3,8 @@ import {
   Sparkles,
   History,
   ArrowLeft,
+  Sun,
+  Moon,
 } from 'lucide-react';
 import { Dropzone } from './components/Dropzone';
 import { EditorCanvas } from './components/EditorCanvas';
@@ -22,6 +24,27 @@ export function App() {
   const [autoResize] = useState<boolean>(true);
   const [currentFilename, setCurrentFilename] = useState<string>('image.png');
   const [bgImageName, setBgImageName] = useState<string | null>(null);
+
+  // Theme toggle state
+  const [isDarkMode, setIsDarkMode] = useState<boolean>(() => {
+    return (
+      localStorage.getItem('theme') === 'dark' ||
+      (!localStorage.getItem('theme') &&
+        window.matchMedia('(prefers-color-scheme: dark)').matches)
+    );
+  });
+
+  useEffect(() => {
+    if (isDarkMode) {
+      document.documentElement.classList.add('dark');
+      localStorage.setItem('theme', 'dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+      localStorage.setItem('theme', 'light');
+    }
+  }, [isDarkMode]);
+
+  const toggleDarkMode = () => setIsDarkMode((prev) => !prev);
 
   const [bgConfig, setBgConfig] = useState<BgConfig>({
     type: 'transparent',
@@ -165,7 +188,7 @@ export function App() {
     <div className="min-h-screen bg-white dark:bg-zinc-950 text-zinc-950 dark:text-zinc-50 flex flex-col font-sans">
       {/* Header */}
       <header className="border-b border-zinc-200 dark:border-zinc-800 bg-white/95 dark:bg-zinc-950/95 backdrop-blur-xs sticky top-0 z-30">
-        <div className="max-w-4xl mx-auto px-4 h-14 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-4 h-14 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             <div className="w-7 h-7 rounded-md bg-zinc-900 dark:bg-zinc-100 text-zinc-50 dark:text-zinc-900 flex items-center justify-center font-bold text-xs">
               <Sparkles className="w-3.5 h-3.5" />
@@ -178,24 +201,37 @@ export function App() {
             </Badge>
           </div>
 
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={() => setIsHistoryOpen(true)}
-            className="text-xs"
-          >
-            <History className="w-3.5 h-3.5" />
-            <span>Riwayat</span>
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              onClick={toggleDarkMode}
+              className="h-8 w-8 text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100"
+              title={isDarkMode ? 'Mode Terang' : 'Mode Gelap'}
+            >
+              {isDarkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+            </Button>
+
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => setIsHistoryOpen(true)}
+              className="text-xs"
+            >
+              <History className="w-3.5 h-3.5" />
+              <span>Riwayat</span>
+            </Button>
+          </div>
         </div>
       </header>
 
       {/* Main Container */}
-      <main className="flex-1 max-w-4xl w-full mx-auto px-4 py-8 flex flex-col items-center justify-center">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 py-6 sm:py-8 flex flex-col justify-center">
         {!result ? (
-          // Ingestion: Just Title and Dropzone (Loading happens inside Dropzone)
-          <div className="w-full flex flex-col items-center space-y-6 max-w-xl my-auto py-8">
+          // Ingestion View: Simple Title + In-Place Dropzone
+          <div className="w-full flex flex-col items-center space-y-6 max-w-xl mx-auto my-auto py-8">
             <div className="text-center space-y-1">
               <h1 className="text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">
                 Hapus Latar Belakang
@@ -212,10 +248,10 @@ export function App() {
             />
           </div>
         ) : (
-          // Editor Studio
-          <div className="w-full flex flex-col items-center space-y-4">
+          // Two-Column Studio Editor View
+          <div className="w-full flex flex-col space-y-4">
             {/* Meta Bar */}
-            <div className="flex flex-wrap items-center justify-between w-full max-w-4xl px-1">
+            <div className="flex flex-wrap items-center justify-between px-1 gap-2">
               <div className="flex items-center gap-3">
                 <Button
                   type="button"
@@ -240,51 +276,52 @@ export function App() {
               </div>
             </div>
 
-            {/* Canvas */}
-            {isCompositorReady && (
-              <EditorCanvas
-                width={result.width}
-                height={result.height}
-                bgConfig={bgConfig}
-                brushConfig={brushConfig}
-                isBrushActive={isBrushActive}
-                onDrawStroke={drawBrushStroke}
-                renderComposite={renderComposite}
-              />
-            )}
+            {/* 2-Column Responsive Layout */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+              {/* Left Column: Canvas & Brush Controls */}
+              <div className="lg:col-span-8 flex flex-col space-y-3">
+                {isCompositorReady && (
+                  <EditorCanvas
+                    width={result.width}
+                    height={result.height}
+                    bgConfig={bgConfig}
+                    brushConfig={brushConfig}
+                    isBrushActive={isBrushActive}
+                    onDrawStroke={drawBrushStroke}
+                    renderComposite={renderComposite}
+                  />
+                )}
 
-            {/* Brush Toolbar */}
-            <div className="w-full max-w-4xl">
-              <BrushToolbar
-                brushConfig={brushConfig}
-                onBrushConfigChange={setBrushConfig}
-                isBrushActive={isBrushActive}
-                onToggleBrushActive={setIsBrushActive}
-                onUndo={undo}
-                onRedo={redo}
-                canUndo={canUndo}
-                canRedo={canRedo}
-              />
+                <BrushToolbar
+                  brushConfig={brushConfig}
+                  onBrushConfigChange={setBrushConfig}
+                  isBrushActive={isBrushActive}
+                  onToggleBrushActive={setIsBrushActive}
+                  onUndo={undo}
+                  onRedo={redo}
+                  canUndo={canUndo}
+                  canRedo={canRedo}
+                />
+              </div>
+
+              {/* Right Column (Sidebar Inspector): Export Actions & Background Options */}
+              <div className="lg:col-span-4 flex flex-col space-y-4 lg:sticky lg:top-20">
+                <ExportToolbar
+                  onExport={(format) => exportBlob(bgConfig, format)}
+                  originalFilename={currentFilename}
+                  onReset={handleReset}
+                  onSaveToCloud={handleSaveToCloud}
+                  isSavingToCloud={isSavingToCloud}
+                />
+
+                <BackgroundPanel
+                  bgConfig={bgConfig}
+                  onBgConfigChange={setBgConfig}
+                  onSelectBackgroundImage={handleSelectBackgroundImage}
+                  bgImageName={bgImageName}
+                />
+              </div>
             </div>
-
-            {/* Background Panel */}
-            <div className="w-full max-w-4xl">
-              <BackgroundPanel
-                bgConfig={bgConfig}
-                onBgConfigChange={setBgConfig}
-                onSelectBackgroundImage={handleSelectBackgroundImage}
-                bgImageName={bgImageName}
-              />
-            </div>
-
-            {/* Export Toolbar */}
-            <ExportToolbar
-              onExport={(format) => exportBlob(bgConfig, format)}
-              originalFilename={currentFilename}
-              onReset={handleReset}
-              onSaveToCloud={handleSaveToCloud}
-              isSavingToCloud={isSavingToCloud}
-            />
           </div>
         )}
       </main>
