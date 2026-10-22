@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bgMask" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#18181b"/>
+      <stop offset="100%" stop-color="#09090b"/>
+    </linearGradient>
+    <linearGradient id="sparkleGradMask" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#e4e4e7"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Full Bleed Background for Maskable Icon -->
+  <rect width="512" height="512" fill="url(#bgMask)"/>
+
+  <!-- Centered safe-zone group (within 400x400 safe zone) -->
+  <g transform="translate(16, 12)">
+    <!-- Checkerboard Pattern Accent -->
+    <g opacity="0.12">
+      <rect x="256" y="240" width="28" height="28" fill="#ffffff"/>
+      <rect x="312" y="240" width="28" height="28" fill="#ffffff"/>
+      <rect x="368" y="240" width="28" height="28" fill="#ffffff"/>
+      <rect x="284" y="268" width="28" height="28" fill="#ffffff"/>
+      <rect x="340" y="268" width="28" height="28" fill="#ffffff"/>
+      <rect x="256" y="296" width="28" height="28" fill="#ffffff"/>
+      <rect x="312" y="296" width="28" height="28" fill="#ffffff"/>
+      <rect x="368" y="296" width="28" height="28" fill="#ffffff"/>
+    </g>
+
+    <!-- Subject Silhouette (Person Cutout) -->
+    <g fill="none" stroke="url(#sparkleGradMask)" stroke-width="22" stroke-linecap="round" stroke-linejoin="round">
+      <!-- Head -->
+      <circle cx="216" cy="192" r="50" fill="#27272a"/>
+      <!-- Torso -->
+      <path d="M124 356c0-54 41-98 92-98s92 44 92 98" fill="#27272a"/>
+    </g>
+
+    <!-- Large Sparkle -->
+    <path d="M356 120c0 30.8 25.2 56 56 56-30.8 0-56 25.2-56 56 0-30.8-25.2-56-56-56 30.8 0 56-25.2 56-56z" fill="#ffffff"/>
+
+    <!-- Small Sparkle -->
+    <path d="M404 246c0 15.4 12.6 28 28 28-15.4 0-28 12.6-28 28 0-15.4-12.6-28-28-28 15.4 0 28-12.6 28-28z" fill="#e4e4e7"/>
+
+    <!-- Mini Accent Sparkle -->
+    <path d="M132 140c0 11 9 20 20 20-11 0-20 9-20 20 0-11-9-20-20-20 11 0 20-9 20-20z" fill="#a1a1aa"/>
+  </g>
+</svg>

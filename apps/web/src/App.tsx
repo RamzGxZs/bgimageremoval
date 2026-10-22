@@ -12,6 +12,7 @@ import { BrushToolbar } from './components/BrushToolbar';
 import { BackgroundPanel } from './components/BackgroundPanel';
 import { ExportToolbar } from './components/ExportToolbar';
 import { HistoryDrawer } from './components/HistoryDrawer';
+import { PWAPrompt } from './components/PWAPrompt';
 import { useBgRemoval } from './hooks/useBgRemoval';
 import { useCanvasCompositor } from './hooks/useCanvasCompositor';
 import type { ModelType, BgConfig, BrushConfig } from './types';
@@ -331,6 +332,9 @@ export function App() {
         onClose={() => setIsHistoryOpen(false)}
         onSelectImage={handleLoadFromHistory}
       />
+
+      {/* PWA Offline & Install Prompt */}
+      <PWAPrompt />
     </div>
   );
 }
