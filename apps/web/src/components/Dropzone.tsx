@@ -122,20 +122,20 @@ export const Dropzone: React.FC<DropzoneProps> = ({
   };
 
   return (
-    <div className="w-full max-w-xl mx-auto space-y-3">
-      {/* Dropzone Container */}
+    <div className="w-full max-w-2xl mx-auto space-y-4">
+      {/* Dropzone Container - Large & Easy to Read */}
       <div
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
         onClick={() => !isProcessing && fileInputRef.current?.click()}
-        className={`relative min-h-[240px] rounded-xl border border-dashed transition-all flex flex-col items-center justify-center p-8 text-center select-none
+        className={`relative min-h-[300px] rounded-2xl border-2 border-dashed transition-all flex flex-col items-center justify-center p-10 text-center select-none
           ${
             isProcessing
-              ? 'border-zinc-300 dark:border-zinc-800 bg-zinc-50/60 dark:bg-zinc-900/40 cursor-default'
+              ? 'border-zinc-300 dark:border-zinc-800 bg-zinc-50/70 dark:bg-zinc-900/50 cursor-default'
               : isDragOver
-              ? 'border-zinc-900 bg-zinc-100 dark:border-zinc-100 dark:bg-zinc-800/60 cursor-pointer'
-              : 'border-zinc-300 dark:border-zinc-800 bg-white dark:bg-zinc-950 hover:border-zinc-400 dark:hover:border-zinc-700 cursor-pointer shadow-xs'
+              ? 'border-zinc-900 bg-zinc-100 dark:border-zinc-100 dark:bg-zinc-800/70 cursor-pointer scale-[1.01]'
+              : 'border-zinc-300 dark:border-zinc-800 bg-white dark:bg-zinc-950 hover:border-zinc-400 dark:hover:border-zinc-700 cursor-pointer shadow-sm hover:shadow'
           }
         `}
       >
@@ -149,81 +149,82 @@ export const Dropzone: React.FC<DropzoneProps> = ({
         />
 
         {isProcessing ? (
-          // In-place loading state with progress
-          <div className="flex flex-col items-center justify-center space-y-4 w-full max-w-xs animate-in fade-in duration-200">
-            <Loader2 className="w-7 h-7 text-zinc-900 dark:text-zinc-100 animate-spin" />
+          // In-place loading state with larger progress bar and typography
+          <div className="flex flex-col items-center justify-center space-y-5 w-full max-w-md animate-in fade-in duration-200">
+            <Loader2 className="w-10 h-10 text-zinc-900 dark:text-zinc-100 animate-spin" />
 
-            <div className="space-y-1 w-full text-center">
-              <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
+            <div className="space-y-1.5 w-full text-center">
+              <p className="text-base sm:text-lg font-semibold text-zinc-900 dark:text-zinc-100">
                 {progress?.stage === 'downloading'
                   ? 'Mengunduh model AI...'
                   : 'Memproses gambar...'}
               </p>
-              <p className="text-xs text-zinc-500 dark:text-zinc-400 truncate">
+              <p className="text-sm text-zinc-500 dark:text-zinc-400 truncate">
                 {progress?.message || 'Menghapus latar belakang...'}
               </p>
             </div>
 
-            {/* Progress bar */}
-            <div className="w-full space-y-1.5">
-              <div className="w-full h-1.5 rounded-full bg-zinc-200 dark:bg-zinc-800 overflow-hidden">
+            {/* Thicker Progress bar */}
+            <div className="w-full space-y-2">
+              <div className="w-full h-2.5 rounded-full bg-zinc-200 dark:bg-zinc-800 overflow-hidden">
                 <div
                   className="h-full bg-zinc-900 dark:bg-zinc-100 transition-all duration-300 rounded-full"
                   style={{ width: `${Math.max(5, progress?.percent || 0)}%` }}
                 />
               </div>
               <div className="flex justify-end">
-                <span className="text-[11px] font-mono text-zinc-500">
+                <span className="text-sm font-mono font-medium text-zinc-600 dark:text-zinc-400">
                   {progress?.percent || 0}%
                 </span>
               </div>
             </div>
           </div>
         ) : (
-          // Default upload prompt
-          <div className="flex flex-col items-center justify-center space-y-3">
-            <div className="w-10 h-10 rounded-full border border-zinc-200 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-900 flex items-center justify-center text-zinc-800 dark:text-zinc-200">
-              <Upload className="w-4 h-4" />
+          // Default upload prompt - Large & legible
+          <div className="flex flex-col items-center justify-center space-y-4">
+            <div className="w-14 h-14 rounded-full border border-zinc-200 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-900 flex items-center justify-center text-zinc-800 dark:text-zinc-200 shadow-2xs">
+              <Upload className="w-6 h-6" />
             </div>
 
-            <div className="space-y-1">
-              <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
+            <div className="space-y-1.5">
+              <p className="text-lg sm:text-xl font-semibold text-zinc-900 dark:text-zinc-100">
                 Pilih gambar atau tarik ke sini
               </p>
-              <p className="text-xs text-zinc-500">
-                PNG, JPG, atau WebP hingga 25 MB
+              <p className="text-sm text-zinc-500">
+                Mendukung file PNG, JPG, atau WebP hingga 25 MB
               </p>
             </div>
 
-            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900 text-[11px] text-zinc-600 dark:text-zinc-400">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900 text-xs sm:text-sm text-zinc-600 dark:text-zinc-400">
               <span>atau tekan</span>
-              <kbd className="px-1.5 py-0.5 rounded bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 font-mono text-[10px]">
+              <kbd className="px-2 py-0.5 rounded bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 font-mono text-xs font-semibold shadow-2xs">
                 Ctrl+V
               </kbd>
+              <span>untuk paste</span>
             </div>
           </div>
         )}
       </div>
 
-      {/* Error message if any */}
+      {/* Error message */}
       {errorMessage && (
-        <div className="flex items-center gap-2 p-3 rounded-lg border border-red-200 dark:border-red-900 bg-red-50 dark:bg-red-950/30 text-red-700 dark:text-red-400 text-xs">
-          <AlertCircle className="w-4 h-4 shrink-0" />
+        <div className="flex items-center gap-2.5 p-3.5 rounded-xl border border-red-200 dark:border-red-900 bg-red-50 dark:bg-red-950/30 text-red-700 dark:text-red-400 text-sm">
+          <AlertCircle className="w-5 h-5 shrink-0" />
           <p>{errorMessage}</p>
         </div>
       )}
 
-      {/* Minimal sample links without marketing copywriting */}
+      {/* Minimal sample links - Readable size */}
       {!isProcessing && (
-        <div className="flex items-center justify-center gap-2 text-xs text-zinc-500 pt-1">
-          <span>Coba contoh:</span>
+        <div className="flex items-center justify-center gap-3 text-sm text-zinc-500 pt-1">
+          <span className="font-medium text-zinc-600 dark:text-zinc-400">Coba contoh:</span>
           {SAMPLE_IMAGES.map((sample) => (
             <button
               key={sample.id}
               type="button"
               onClick={() => handleSelectSample(sample)}
               disabled={isFetchingSample}
-              className="hover:text-zinc-900 dark:hover:text-zinc-100 underline underline-offset-4 cursor-pointer disabled:opacity-50"
+              className="px-2.5 py-1 rounded-md bg-zinc-100 dark:bg-zinc-900 hover:bg-zinc-200 dark:hover:bg-zinc-800 text-zinc-800 dark:text-zinc-200 text-xs sm:text-sm font-medium transition-colors cursor-pointer disabled:opacity-50"
             >
               {sample.title}
             </button>

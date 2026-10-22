@@ -100,29 +100,29 @@ export const HistoryDrawer: React.FC<HistoryDrawerProps> = ({
       />
 
       <div className="absolute inset-y-0 right-0 max-w-full flex pl-10">
-        <div className="w-screen max-w-sm bg-white dark:bg-zinc-950 border-l border-zinc-200 dark:border-zinc-800 shadow-xl flex flex-col">
+        <div className="w-screen max-w-md bg-white dark:bg-zinc-950 border-l border-zinc-200 dark:border-zinc-800 shadow-xl flex flex-col">
           {/* Header */}
-          <div className="p-4 border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <History className="w-4 h-4 text-zinc-900 dark:text-zinc-100" />
-              <span className="font-semibold text-sm text-zinc-900 dark:text-zinc-100">
+          <div className="p-4 sm:p-5 border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between">
+            <div className="flex items-center gap-2.5">
+              <History className="w-5 h-5 text-zinc-900 dark:text-zinc-100" />
+              <span className="font-semibold text-base text-zinc-900 dark:text-zinc-100">
                 Riwayat Cloud
               </span>
-              <Badge variant="secondary" className="font-mono text-[10px]">
+              <Badge variant="secondary" className="font-mono text-xs px-2 py-0.5">
                 {total}
               </Badge>
             </div>
 
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1.5">
               <Button
                 type="button"
                 variant="ghost"
                 size="icon"
                 onClick={() => setShowSettings(!showSettings)}
-                className="h-8 w-8 text-zinc-500"
+                className="h-9 w-9 text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100"
                 title="Konfigurasi API"
               >
-                <Key className="w-3.5 h-3.5" />
+                <Key className="w-4 h-4" />
               </Button>
               <Button
                 type="button"
@@ -130,17 +130,17 @@ export const HistoryDrawer: React.FC<HistoryDrawerProps> = ({
                 size="icon"
                 onClick={loadHistory}
                 disabled={isLoading}
-                className="h-8 w-8 text-zinc-500"
+                className="h-9 w-9 text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100"
                 title="Segarkan"
               >
-                <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? 'animate-spin' : ''}`} />
+                <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
               </Button>
               <Button
                 type="button"
                 variant="ghost"
                 size="icon"
                 onClick={onClose}
-                className="h-8 w-8 text-zinc-500"
+                className="h-9 w-9 text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100"
               >
                 <X className="w-4 h-4" />
               </Button>
@@ -151,16 +151,16 @@ export const HistoryDrawer: React.FC<HistoryDrawerProps> = ({
           {showSettings && (
             <form
               onSubmit={handleSaveSettings}
-              className="p-3 bg-zinc-50 dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800 space-y-2 text-xs"
+              className="p-4 bg-zinc-50 dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800 space-y-3 text-sm"
             >
-              <div className="flex items-center gap-1.5 font-medium text-zinc-800 dark:text-zinc-200">
-                <HardDrive className="w-3.5 h-3.5 text-zinc-500" />
+              <div className="flex items-center gap-2 font-medium text-zinc-800 dark:text-zinc-200">
+                <HardDrive className="w-4 h-4 text-zinc-500" />
                 <span>Pengaturan Cloudflare</span>
               </div>
 
-              <div className="space-y-1">
-                <label className="text-zinc-500 flex items-center gap-1">
-                  <Globe className="w-3 h-3" />
+              <div className="space-y-1.5">
+                <label className="text-zinc-600 dark:text-zinc-400 flex items-center gap-1.5 text-xs font-medium">
+                  <Globe className="w-3.5 h-3.5" />
                   <span>API Base URL</span>
                 </label>
                 <Input
@@ -168,13 +168,13 @@ export const HistoryDrawer: React.FC<HistoryDrawerProps> = ({
                   value={apiBaseUrl}
                   onChange={(e) => setApiBase(e.target.value)}
                   placeholder="https://...workers.dev"
-                  className="h-7 text-xs bg-white dark:bg-zinc-950"
+                  className="h-9 text-sm bg-white dark:bg-zinc-950"
                 />
               </div>
 
-              <div className="space-y-1">
-                <label className="text-zinc-500 flex items-center gap-1">
-                  <Key className="w-3 h-3" />
+              <div className="space-y-1.5">
+                <label className="text-zinc-600 dark:text-zinc-400 flex items-center gap-1.5 text-xs font-medium">
+                  <Key className="w-3.5 h-3.5" />
                   <span>Secret Key / PIN</span>
                 </label>
                 <Input
@@ -182,21 +182,21 @@ export const HistoryDrawer: React.FC<HistoryDrawerProps> = ({
                   value={apiToken}
                   onChange={(e) => setToken(e.target.value)}
                   placeholder="Kunci rahasia..."
-                  className="h-7 text-xs bg-white dark:bg-zinc-950"
+                  className="h-9 text-sm bg-white dark:bg-zinc-950"
                 />
               </div>
 
-              <div className="flex justify-end gap-1.5 pt-1">
+              <div className="flex justify-end gap-2 pt-1">
                 <Button
                   type="button"
                   variant="ghost"
                   size="sm"
                   onClick={() => setShowSettings(false)}
-                  className="h-7 text-xs"
+                  className="h-8 text-xs font-medium"
                 >
                   Batal
                 </Button>
-                <Button type="submit" size="sm" className="h-7 text-xs">
+                <Button type="submit" size="sm" className="h-8 text-xs font-medium">
                   Simpan
                 </Button>
               </div>
@@ -204,16 +204,16 @@ export const HistoryDrawer: React.FC<HistoryDrawerProps> = ({
           )}
 
           {/* List Content */}
-          <div className="flex-1 overflow-y-auto p-3 space-y-2">
+          <div className="flex-1 overflow-y-auto p-4 space-y-2.5">
             {error && (
-              <div className="p-3 rounded-md bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900 text-red-700 dark:text-red-400 text-xs flex items-start gap-2">
+              <div className="p-3.5 rounded-lg bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900 text-red-700 dark:text-red-400 text-sm flex items-start gap-2.5">
                 <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
                 <div className="flex-1">
                   <p>{error}</p>
                   <button
                     type="button"
                     onClick={() => setShowSettings(true)}
-                    className="mt-1 underline text-zinc-900 dark:text-zinc-100 font-medium block"
+                    className="mt-1.5 underline text-zinc-900 dark:text-zinc-100 font-medium block text-xs"
                   >
                     Buka Pengaturan API
                   </button>
@@ -222,9 +222,9 @@ export const HistoryDrawer: React.FC<HistoryDrawerProps> = ({
             )}
 
             {!isLoading && items.length === 0 && !error && (
-              <div className="text-center py-12 text-zinc-400 space-y-2">
-                <Layers className="w-8 h-8 mx-auto stroke-1" />
-                <p className="text-xs">Belum ada riwayat gambar di cloud.</p>
+              <div className="text-center py-16 text-zinc-400 space-y-3">
+                <Layers className="w-10 h-10 mx-auto stroke-1 text-zinc-400" />
+                <p className="text-sm">Belum ada riwayat gambar di cloud.</p>
               </div>
             )}
 
@@ -247,9 +247,9 @@ export const HistoryDrawer: React.FC<HistoryDrawerProps> = ({
                     onSelectImage(fullCutoutUrl, item.originalUrl, item.originalFilename);
                     onClose();
                   }}
-                  className="flex gap-2.5 p-2 rounded-lg border border-zinc-200 dark:border-zinc-800 hover:border-zinc-400 dark:hover:border-zinc-600 bg-white dark:bg-zinc-950 transition-colors cursor-pointer"
+                  className="flex gap-3 p-2.5 rounded-lg border border-zinc-200 dark:border-zinc-800 hover:border-zinc-400 dark:hover:border-zinc-600 bg-white dark:bg-zinc-950 transition-colors cursor-pointer"
                 >
-                  <div className="w-16 h-16 rounded-md bg-checkerboard border border-zinc-200 dark:border-zinc-800 overflow-hidden shrink-0 flex items-center justify-center">
+                  <div className="w-20 h-20 rounded-md bg-checkerboard border border-zinc-200 dark:border-zinc-800 overflow-hidden shrink-0 flex items-center justify-center">
                     <img
                       src={fullCutoutUrl}
                       alt={item.originalFilename}
@@ -260,17 +260,17 @@ export const HistoryDrawer: React.FC<HistoryDrawerProps> = ({
 
                   <div className="flex-1 min-w-0 flex flex-col justify-between py-0.5">
                     <div>
-                      <h4 className="text-xs font-medium text-zinc-900 dark:text-zinc-100 truncate">
+                      <h4 className="text-sm font-medium text-zinc-900 dark:text-zinc-100 truncate">
                         {item.originalFilename}
                       </h4>
-                      <p className="text-[11px] text-zinc-500 mt-0.5">
+                      <p className="text-xs text-zinc-500 mt-1">
                         {item.width} × {item.height} • {formatBytes(item.fileSizeBytes)}
                       </p>
                     </div>
 
-                    <div className="flex items-center justify-between text-[10px] text-zinc-400">
-                      <span className="flex items-center gap-1">
-                        <Clock className="w-3 h-3" />
+                    <div className="flex items-center justify-between text-xs text-zinc-400 pt-1">
+                      <span className="flex items-center gap-1.5">
+                        <Clock className="w-3.5 h-3.5" />
                         {formattedDate}
                       </span>
 
@@ -279,10 +279,10 @@ export const HistoryDrawer: React.FC<HistoryDrawerProps> = ({
                         variant="ghost"
                         size="icon"
                         onClick={(e) => handleDelete(item.id, e)}
-                        className="h-6 w-6 text-zinc-400 hover:text-red-500"
+                        className="h-7 w-7 text-zinc-400 hover:text-red-500"
                         title="Hapus"
                       >
-                        <Trash2 className="w-3 h-3" />
+                        <Trash2 className="w-3.5 h-3.5" />
                       </Button>
                     </div>
                   </div>

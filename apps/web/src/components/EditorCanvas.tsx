@@ -173,38 +173,38 @@ export const EditorCanvas: React.FC<EditorCanvasProps> = ({
   };
 
   return (
-    <div className="flex flex-col items-center w-full space-y-2">
-      {/* Top Toolbar */}
+    <div className="flex flex-col items-center w-full space-y-3">
+      {/* Top Controls Toolbar - Larger size */}
       <div className="flex items-center justify-between w-full px-1">
         <div className="flex items-center gap-2">
           <Button
             type="button"
             variant={isComparing ? 'secondary' : 'outline'}
-            size="sm"
+            size="default"
             onClick={() => setIsComparing(!isComparing)}
-            className="text-xs"
+            className="text-sm font-medium h-10 px-4"
           >
-            <SplitSquareVertical className="w-3.5 h-3.5" />
+            <SplitSquareVertical className="w-4 h-4" />
             <span>Before / After Slider</span>
           </Button>
         </div>
 
         {/* Zoom Controls */}
-        <div className="flex items-center gap-1 border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 p-0.5 rounded-md">
+        <div className="flex items-center gap-1 border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 p-1 rounded-lg shadow-2xs">
           <Button
             type="button"
             variant="ghost"
             size="icon"
             onClick={handleZoomOut}
-            className="h-7 w-7 text-zinc-500"
+            className="h-8 w-8 text-zinc-600 dark:text-zinc-400"
             title="Perkecil"
           >
-            <ZoomOut className="w-3.5 h-3.5" />
+            <ZoomOut className="w-4 h-4" />
           </Button>
           <button
             type="button"
             onClick={handleResetZoom}
-            className="px-2 text-xs font-mono text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 cursor-pointer"
+            className="px-2.5 text-sm font-mono font-medium text-zinc-700 dark:text-zinc-300 hover:text-zinc-950 dark:hover:text-zinc-50 cursor-pointer"
             title="Reset Ukuran"
           >
             {Math.round(scale * 100)}%
@@ -214,42 +214,42 @@ export const EditorCanvas: React.FC<EditorCanvasProps> = ({
             variant="ghost"
             size="icon"
             onClick={handleZoomIn}
-            className="h-7 w-7 text-zinc-500"
+            className="h-8 w-8 text-zinc-600 dark:text-zinc-400"
             title="Perbesar"
           >
-            <ZoomIn className="w-3.5 h-3.5" />
+            <ZoomIn className="w-4 h-4" />
           </Button>
           <Button
             type="button"
             variant="ghost"
             size="icon"
             onClick={handleResetZoom}
-            className="h-7 w-7 text-zinc-500 border-l border-zinc-200 dark:border-zinc-800 rounded-none"
+            className="h-8 w-8 text-zinc-600 dark:text-zinc-400 border-l border-zinc-200 dark:border-zinc-800 rounded-none pl-2"
             title="Sesuaikan Layar"
           >
-            <Maximize2 className="w-3.5 h-3.5" />
+            <Maximize2 className="w-4 h-4" />
           </Button>
         </div>
       </div>
 
-      {/* Main Canvas Container */}
+      {/* Main Canvas Container - Spacious & Clear */}
       <div
         ref={containerRef}
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
         onMouseLeave={handleMouseLeave}
-        className={`relative w-full h-[440px] sm:h-[500px] lg:h-[540px] rounded-xl overflow-hidden border border-zinc-200 dark:border-zinc-800 select-none flex items-center justify-center ${
+        className={`relative w-full h-[480px] sm:h-[560px] lg:h-[620px] rounded-2xl overflow-hidden border border-zinc-200 dark:border-zinc-800 select-none flex items-center justify-center shadow-xs ${
           bgConfig.type === 'transparent' ? 'bg-checkerboard' : 'bg-zinc-900'
         } ${isBrushActive ? 'cursor-none' : scale > 1 ? 'cursor-grab' : 'cursor-default'}`}
       >
-        {/* Subtle Labels in Comparison Mode */}
+        {/* Comparison Labels */}
         {isComparing && (
           <>
-            <div className="absolute top-3 left-3 z-10 pointer-events-none px-2 py-0.5 rounded bg-black/60 backdrop-blur-xs text-[10px] font-medium text-white shadow-xs">
+            <div className="absolute top-4 left-4 z-10 pointer-events-none px-3 py-1 rounded-md bg-black/75 backdrop-blur-xs text-xs font-semibold text-white shadow">
               Foto Asli
             </div>
-            <div className="absolute top-3 right-3 z-10 pointer-events-none px-2 py-0.5 rounded bg-black/60 backdrop-blur-xs text-[10px] font-medium text-white shadow-xs">
+            <div className="absolute top-4 right-4 z-10 pointer-events-none px-3 py-1 rounded-md bg-black/75 backdrop-blur-xs text-xs font-semibold text-white shadow">
               Hasil Potongan
             </div>
           </>
@@ -265,7 +265,7 @@ export const EditorCanvas: React.FC<EditorCanvasProps> = ({
         >
           <canvas
             ref={canvasRef}
-            className="max-w-full max-h-[420px] sm:max-h-[480px] lg:max-h-[520px] object-contain"
+            className="max-w-full max-h-[460px] sm:max-h-[540px] lg:max-h-[600px] object-contain shadow-sm"
             style={{
               aspectRatio: `${width} / ${height}`,
             }}
@@ -295,8 +295,8 @@ export const EditorCanvas: React.FC<EditorCanvasProps> = ({
             className="absolute top-0 bottom-0 z-20 cursor-ew-resize flex items-center justify-center -translate-x-1/2"
             style={{ left: `${splitPos * 100}%` }}
           >
-            <div className="w-[1.5px] h-full bg-white shadow-xs" />
-            <div className="w-6 h-6 rounded-full bg-white text-zinc-900 shadow-md border border-zinc-200 flex items-center justify-center text-[10px] font-bold">
+            <div className="w-[2px] h-full bg-white shadow-xs" />
+            <div className="w-8 h-8 rounded-full bg-white text-zinc-900 shadow-md border border-zinc-200 flex items-center justify-center text-xs font-bold hover:scale-110 transition-transform">
               ↔
             </div>
           </div>

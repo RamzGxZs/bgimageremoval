@@ -27,19 +27,18 @@ export function App() {
 
   // Theme toggle state
   const [isDarkMode, setIsDarkMode] = useState<boolean>(() => {
-    return (
-      localStorage.getItem('theme') === 'dark' ||
-      (!localStorage.getItem('theme') &&
-        window.matchMedia('(prefers-color-scheme: dark)').matches)
-    );
+    const saved = localStorage.getItem('theme');
+    if (saved) return saved === 'dark';
+    return window.matchMedia('(prefers-color-scheme: dark)').matches;
   });
 
   useEffect(() => {
+    const root = document.documentElement;
     if (isDarkMode) {
-      document.documentElement.classList.add('dark');
+      root.classList.add('dark');
       localStorage.setItem('theme', 'dark');
     } else {
-      document.documentElement.classList.remove('dark');
+      root.classList.remove('dark');
       localStorage.setItem('theme', 'light');
     }
   }, [isDarkMode]);
@@ -188,27 +187,27 @@ export function App() {
     <div className="min-h-screen bg-white dark:bg-zinc-950 text-zinc-950 dark:text-zinc-50 flex flex-col font-sans">
       {/* Header */}
       <header className="border-b border-zinc-200 dark:border-zinc-800 bg-white/95 dark:bg-zinc-950/95 backdrop-blur-xs sticky top-0 z-30">
-        <div className="max-w-7xl mx-auto px-4 h-14 flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <div className="w-7 h-7 rounded-md bg-zinc-900 dark:bg-zinc-100 text-zinc-50 dark:text-zinc-900 flex items-center justify-center font-bold text-xs">
-              <Sparkles className="w-3.5 h-3.5" />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-lg bg-zinc-900 dark:bg-zinc-100 text-zinc-50 dark:text-zinc-900 flex items-center justify-center font-bold">
+              <Sparkles className="w-4 h-4" />
             </div>
-            <span className="font-semibold text-sm tracking-tight">
+            <span className="font-semibold text-base tracking-tight">
               BG Remover
             </span>
-            <Badge variant="outline" className="text-[10px] font-normal px-2 py-0">
-              AI
+            <Badge variant="outline" className="text-xs font-medium px-2 py-0.5">
+              AI Client-side
             </Badge>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2.5">
             <Button
               type="button"
               variant="ghost"
               size="icon"
               onClick={toggleDarkMode}
-              className="h-8 w-8 text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100"
-              title={isDarkMode ? 'Mode Terang' : 'Mode Gelap'}
+              className="h-9 w-9 text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100"
+              title={isDarkMode ? 'Beralih ke Mode Terang' : 'Beralih ke Mode Gelap'}
             >
               {isDarkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
             </Button>
@@ -216,11 +215,11 @@ export function App() {
             <Button
               type="button"
               variant="outline"
-              size="sm"
+              size="default"
               onClick={() => setIsHistoryOpen(true)}
-              className="text-xs"
+              className="h-9 text-sm font-medium"
             >
-              <History className="w-3.5 h-3.5" />
+              <History className="w-4 h-4" />
               <span>Riwayat</span>
             </Button>
           </div>
@@ -228,16 +227,16 @@ export function App() {
       </header>
 
       {/* Main Container */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 py-6 sm:py-8 flex flex-col justify-center">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-6 sm:py-10 flex flex-col justify-center">
         {!result ? (
-          // Ingestion View: Simple Title + In-Place Dropzone
-          <div className="w-full flex flex-col items-center space-y-6 max-w-xl mx-auto my-auto py-8">
-            <div className="text-center space-y-1">
-              <h1 className="text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">
+          // Ingestion View: Simple Title + In-Place Dropzone (Enlarged)
+          <div className="w-full flex flex-col items-center space-y-8 max-w-2xl mx-auto my-auto py-8">
+            <div className="text-center space-y-2">
+              <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">
                 Hapus Latar Belakang
               </h1>
-              <p className="text-xs text-zinc-500">
-                Unggah gambar untuk menghapus latar belakang secara otomatis.
+              <p className="text-base text-zinc-500 dark:text-zinc-400">
+                Unggah gambar untuk menghapus latar belakang secara otomatis dengan AI lokal.
               </p>
             </div>
 
@@ -258,16 +257,16 @@ export function App() {
                   variant="outline"
                   size="icon"
                   onClick={handleReset}
-                  className="h-8 w-8"
+                  className="h-9 w-9"
                   title="Kembali"
                 >
                   <ArrowLeft className="w-4 h-4" />
                 </Button>
                 <div>
-                  <h2 className="text-sm font-medium text-zinc-900 dark:text-zinc-100 truncate max-w-xs sm:max-w-md">
+                  <h2 className="text-base font-semibold text-zinc-900 dark:text-zinc-100 truncate max-w-xs sm:max-w-md">
                     {currentFilename}
                   </h2>
-                  <div className="flex items-center gap-2 text-[11px] text-zinc-500">
+                  <div className="flex items-center gap-2 text-xs text-zinc-500 dark:text-zinc-400">
                     <span>{result.width} × {result.height} px</span>
                     <span>•</span>
                     <span className="font-mono">{(result.durationMs / 1000).toFixed(1)}s</span>
