@@ -1,6 +1,7 @@
 import React, { useRef, useEffect, useState, useCallback } from 'react';
 import { ZoomIn, ZoomOut, Maximize2, SplitSquareVertical } from 'lucide-react';
 import type { BgConfig, BrushConfig } from '../types';
+import { Button } from './ui/button';
 
 interface EditorCanvasProps {
   width: number;
@@ -35,22 +36,18 @@ export const EditorCanvas: React.FC<EditorCanvasProps> = ({
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  // Split Slider state
   const [splitPos, setSplitPos] = useState<number>(0.5);
   const [isComparing, setIsComparing] = useState<boolean>(false);
   const [isDraggingSlider, setIsDraggingSlider] = useState<boolean>(false);
 
-  // Zoom & Pan state
   const [scale, setScale] = useState<number>(1);
   const [panOffset, setPanOffset] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const [isPanning, setIsPanning] = useState<boolean>(false);
   const panStartRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
 
-  // Brush drawing state
   const isDrawingRef = useRef<boolean>(false);
   const lastPointRef = useRef<{ x: number; y: number } | null>(null);
 
-  // Custom brush circle indicator
   const [cursorPos, setCursorPos] = useState<{ x: number; y: number; visible: boolean }>({
     x: 0,
     y: 0,
@@ -176,75 +173,79 @@ export const EditorCanvas: React.FC<EditorCanvasProps> = ({
   };
 
   return (
-    <div className="flex flex-col items-center w-full space-y-3">
-      {/* Top Toolbar: Compare & Zoom */}
-      <div className="flex items-center justify-between w-full max-w-4xl px-2">
+    <div className="flex flex-col items-center w-full space-y-2">
+      {/* Top Toolbar */}
+      <div className="flex items-center justify-between w-full max-w-4xl px-1">
         <div className="flex items-center gap-2">
-          <button
+          <Button
             type="button"
+            variant={isComparing ? 'secondary' : 'outline'}
+            size="sm"
             onClick={() => setIsComparing(!isComparing)}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium border transition-all ${
-              isComparing
-                ? 'bg-blue-600 text-white border-blue-600 shadow-2xs'
-                : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50'
-            }`}
+            className="text-xs"
           >
             <SplitSquareVertical className="w-3.5 h-3.5" />
             <span>Before / After Slider</span>
-          </button>
+          </Button>
           {isComparing && (
-            <span className="text-[11px] text-gray-400">
-              Kiri: Asli | Kanan: Hasil Edit
+            <span className="text-[11px] text-zinc-500">
+              Kiri: Asli | Kanan: Edit
             </span>
           )}
         </div>
 
         {/* Zoom Controls */}
-        <div className="flex items-center gap-1 bg-white dark:bg-gray-800 p-1 rounded-xl border border-gray-200 dark:border-gray-700">
-          <button
+        <div className="flex items-center gap-1 border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 p-0.5 rounded-md">
+          <Button
             type="button"
+            variant="ghost"
+            size="icon"
             onClick={handleZoomOut}
-            className="p-1.5 rounded-lg text-gray-500 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+            className="h-7 w-7 text-zinc-500"
             title="Perkecil"
           >
             <ZoomOut className="w-3.5 h-3.5" />
-          </button>
+          </Button>
           <button
             type="button"
             onClick={handleResetZoom}
-            className="px-2 py-1 rounded-lg text-xs font-mono text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+            className="px-2 text-xs font-mono text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 cursor-pointer"
             title="Reset Ukuran"
           >
             {Math.round(scale * 100)}%
           </button>
-          <button
+          <Button
             type="button"
+            variant="ghost"
+            size="icon"
             onClick={handleZoomIn}
-            className="p-1.5 rounded-lg text-gray-500 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+            className="h-7 w-7 text-zinc-500"
             title="Perbesar"
           >
             <ZoomIn className="w-3.5 h-3.5" />
-          </button>
-          <button
+          </Button>
+          <Button
             type="button"
+            variant="ghost"
+            size="icon"
             onClick={handleResetZoom}
-            className="p-1.5 rounded-lg text-gray-500 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors border-l border-gray-200 dark:border-gray-700"
+            className="h-7 w-7 text-zinc-500 border-l border-zinc-200 dark:border-zinc-800 rounded-none"
             title="Sesuaikan Layar"
           >
             <Maximize2 className="w-3.5 h-3.5" />
-          </button>
+          </Button>
         </div>
       </div>
 
-      {/* Main Canvas Container with Checkerboard Background */}
+      {/* Main Canvas Container */}
       <div
         ref={containerRef}
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
         onMouseLeave={handleMouseLeave}
-        className={`relative w-full max-w-4xl h-[480px] sm:h-[580px] rounded-2xl overflow-hidden shadow-inner border border-gray-300 dark:border-gray-700 select-none flex items-center justify-center ${
-          bgConfig.type === 'transparent' ? 'bg-checkerboard' : 'bg-gray-950'
+        className={`relative w-full max-w-4xl h-[460px] sm:h-[540px] rounded-xl overflow-hidden border border-zinc-200 dark:border-zinc-800 select-none flex items-center justify-center ${
+          bgConfig.type === 'transparent' ? 'bg-checkerboard' : 'bg-zinc-900'
         } ${isBrushActive ? 'cursor-none' : scale > 1 ? 'cursor-grab' : 'cursor-default'}`}
       >
         <div
@@ -257,20 +258,17 @@ export const EditorCanvas: React.FC<EditorCanvasProps> = ({
         >
           <canvas
             ref={canvasRef}
-            className="max-w-full max-h-[460px] sm:max-h-[560px] object-contain shadow-lg"
+            className="max-w-full max-h-[440px] sm:max-h-[520px] object-contain"
             style={{
               aspectRatio: `${width} / ${height}`,
             }}
           />
         </div>
 
+        {/* Brush indicator */}
         {isBrushActive && cursorPos.visible && (
           <div
-            className={`pointer-events-none absolute rounded-full border border-dashed transition-transform -translate-x-1/2 -translate-y-1/2 ${
-              brushConfig.mode === 'erase'
-                ? 'border-rose-500 bg-rose-500/10'
-                : 'border-emerald-500 bg-emerald-500/10'
-            }`}
+            className="pointer-events-none absolute rounded-full border border-zinc-900 dark:border-zinc-100 -translate-x-1/2 -translate-y-1/2 bg-zinc-900/10 dark:bg-zinc-100/10"
             style={{
               left: cursorPos.x,
               top: cursorPos.y,
@@ -280,6 +278,7 @@ export const EditorCanvas: React.FC<EditorCanvasProps> = ({
           />
         )}
 
+        {/* Split Slider Handle */}
         {isComparing && (
           <div
             onMouseDown={(e) => {
@@ -289,8 +288,8 @@ export const EditorCanvas: React.FC<EditorCanvasProps> = ({
             className="absolute top-0 bottom-0 z-20 cursor-ew-resize flex items-center justify-center -translate-x-1/2"
             style={{ left: `${splitPos * 100}%` }}
           >
-            <div className="w-0.5 h-full bg-white shadow-[0_0_8px_rgba(0,0,0,0.6)]" />
-            <div className="w-8 h-8 rounded-full bg-white text-gray-800 shadow-lg border border-gray-200 flex items-center justify-center text-xs font-bold hover:scale-110 transition-transform">
+            <div className="w-[1.5px] h-full bg-white shadow-xs" />
+            <div className="w-6 h-6 rounded-full bg-white text-zinc-900 shadow-md border border-zinc-200 flex items-center justify-center text-[10px] font-bold">
               ↔
             </div>
           </div>

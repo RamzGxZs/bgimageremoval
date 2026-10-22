@@ -1,6 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Upload, Link as LinkIcon, Sparkles, AlertCircle, Sliders } from 'lucide-react';
 import type { ModelType } from '../types';
+import { Button } from './ui/button';
+import { Input } from './ui/input';
+import { Card } from './ui/card';
 
 interface DropzoneProps {
   onImageSelected: (file: Blob, filename?: string) => void;
@@ -15,21 +18,21 @@ const SAMPLE_IMAGES = [
   {
     id: 'portrait',
     title: 'Potret',
-    subtitle: 'Rambut & detail halus',
+    subtitle: 'Rambut & detail tepi',
     thumbnail: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=75',
     url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=1000&q=85',
   },
   {
     id: 'product',
     title: 'Produk',
-    subtitle: 'Katalog sepatu / e-commerce',
+    subtitle: 'Sepatu & e-commerce',
     thumbnail: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=200&q=75',
     url: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=1000&q=85',
   },
   {
     id: 'car',
     title: 'Kendaraan',
-    subtitle: 'Mobil & tepi keras',
+    subtitle: 'Mobil & kontur tegas',
     thumbnail: 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=200&q=75',
     url: 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1000&q=85',
   },
@@ -166,19 +169,20 @@ export const Dropzone: React.FC<DropzoneProps> = ({
   };
 
   return (
-    <div className="w-full max-w-3xl mx-auto space-y-6">
+    <div className="w-full max-w-2xl mx-auto space-y-4">
+      {/* Drag & Drop Main Zone */}
       <div
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
         onClick={() => !isProcessing && fileInputRef.current?.click()}
-        className={`relative group cursor-pointer rounded-2xl border-2 border-dashed p-10 text-center transition-all duration-200
+        className={`relative cursor-pointer rounded-xl border border-dashed p-10 text-center transition-colors
           ${
             isDragOver
-              ? 'border-blue-500 bg-blue-50/50 dark:bg-blue-950/20 scale-[1.01]'
-              : 'border-gray-300 dark:border-gray-700 hover:border-blue-400 bg-white dark:bg-gray-800/80 shadow-sm hover:shadow-md'
+              ? 'border-zinc-950 bg-zinc-100 dark:border-zinc-100 dark:bg-zinc-800/60'
+              : 'border-zinc-300 dark:border-zinc-800 bg-white dark:bg-zinc-950 hover:border-zinc-400 dark:hover:border-zinc-700'
           }
-          ${isProcessing ? 'pointer-events-none opacity-60' : ''}
+          ${isProcessing ? 'pointer-events-none opacity-50' : ''}
         `}
       >
         <input
@@ -189,95 +193,91 @@ export const Dropzone: React.FC<DropzoneProps> = ({
           className="hidden"
         />
 
-        <div className="flex flex-col items-center justify-center space-y-4">
-          <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-blue-500 to-indigo-600 flex items-center justify-center text-white shadow-lg shadow-blue-500/30 group-hover:scale-105 transition-transform">
-            <Upload className="w-8 h-8" />
+        <div className="flex flex-col items-center justify-center space-y-3">
+          <div className="w-10 h-10 rounded-full border border-zinc-200 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-900 flex items-center justify-center text-zinc-900 dark:text-zinc-100">
+            <Upload className="w-5 h-5" />
           </div>
 
           <div className="space-y-1">
-            <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-100">
-              Tarik & Letakkan gambar di sini
-            </h3>
-            <p className="text-sm text-gray-500 dark:text-gray-400">
-              atau klik untuk memilih file dari komputer
+            <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
+              Pilih file gambar atau tarik ke sini
+            </p>
+            <p className="text-xs text-zinc-500 dark:text-zinc-400">
+              Mendukung JPEG, PNG, WebP hingga 25 MB
             </p>
           </div>
 
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-gray-100 dark:bg-gray-700/60 text-xs font-medium text-gray-600 dark:text-gray-300">
-            <span>Tekan</span>
-            <kbd className="px-1.5 py-0.5 rounded bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 font-mono text-[11px] shadow-2xs">
+          <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900 text-[11px] text-zinc-600 dark:text-zinc-400">
+            <span>Atau tekan</span>
+            <kbd className="px-1.5 py-0.5 rounded bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 font-mono text-[10px]">
               Ctrl+V
             </kbd>
             <span>untuk paste langsung</span>
           </div>
-
-          <p className="text-xs text-gray-400">
-            Mendukung PNG, JPG, WebP hingga 25 MB
-          </p>
         </div>
       </div>
 
+      {/* Error Message */}
       {errorMessage && (
-        <div className="flex items-center gap-3 p-4 rounded-xl bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900 text-red-700 dark:text-red-300 text-sm">
-          <AlertCircle className="w-5 h-5 shrink-0" />
+        <div className="flex items-center gap-2 p-3 rounded-lg border border-red-200 dark:border-red-900 bg-red-50 dark:bg-red-950/30 text-red-700 dark:text-red-400 text-xs">
+          <AlertCircle className="w-4 h-4 shrink-0" />
           <p>{errorMessage}</p>
         </div>
       )}
 
-      <div className="flex flex-col sm:flex-row gap-3 items-center">
-        <form onSubmit={handleFetchUrl} className="flex-1 w-full flex items-center gap-2">
+      {/* URL Ingestion & Settings Button */}
+      <div className="flex gap-2 items-center">
+        <form onSubmit={handleFetchUrl} className="flex-1 flex gap-2">
           <div className="relative flex-1">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
-              <LinkIcon className="w-4 h-4" />
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-zinc-400">
+              <LinkIcon className="w-3.5 h-3.5" />
             </div>
-            <input
+            <Input
               type="url"
               value={urlInput}
               onChange={(e) => setUrlInput(e.target.value)}
-              placeholder="Atau tempel URL gambar (https://...)"
+              placeholder="Tempel tautan URL gambar..."
               disabled={isProcessing || isFetchingUrl}
-              className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm text-gray-800 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
+              className="pl-8 text-xs"
             />
           </div>
-          <button
+          <Button
             type="submit"
+            variant="secondary"
+            size="sm"
             disabled={!urlInput.trim() || isProcessing || isFetchingUrl}
-            className="px-4 py-2.5 rounded-xl bg-gray-800 hover:bg-gray-900 dark:bg-gray-700 dark:hover:bg-gray-600 text-white text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
           >
             {isFetchingUrl ? 'Memuat...' : 'Ambil'}
-          </button>
+          </Button>
         </form>
 
-        <button
+        <Button
           type="button"
+          variant={showSettings ? 'secondary' : 'outline'}
+          size="sm"
           onClick={() => setShowSettings(!showSettings)}
-          className={`px-3.5 py-2.5 rounded-xl border text-sm font-medium flex items-center gap-2 transition-colors shrink-0
-            ${
-              showSettings
-                ? 'border-blue-500 text-blue-600 bg-blue-50 dark:bg-blue-950/30'
-                : 'border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800'
-            }`}
         >
-          <Sliders className="w-4 h-4" />
+          <Sliders className="w-3.5 h-3.5" />
           <span>Pengaturan AI</span>
-        </button>
+        </Button>
       </div>
 
+      {/* Settings Panel */}
       {showSettings && (
-        <div className="p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50/70 dark:bg-gray-800/50 space-y-4 text-sm animate-in fade-in duration-150">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <Card className="p-4 space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
             <div>
-              <span className="font-medium text-gray-800 dark:text-gray-200 block">Varian Model AI</span>
-              <span className="text-xs text-gray-500">Pilih model inferensi @imgly</span>
+              <span className="font-medium text-zinc-900 dark:text-zinc-100 block">Model Inferensi</span>
+              <span className="text-zinc-500">Pilih model segmentasi objek</span>
             </div>
-            <div className="flex items-center gap-1.5 bg-white dark:bg-gray-900 p-1 rounded-lg border border-gray-200 dark:border-gray-700">
+            <div className="flex items-center gap-1 bg-zinc-100 dark:bg-zinc-800 p-1 rounded-md">
               <button
                 type="button"
                 onClick={() => onModelChange('isnet_fp16')}
-                className={`px-3 py-1 rounded-md text-xs font-medium transition-all ${
+                className={`px-2.5 py-1 rounded text-xs transition-colors cursor-pointer ${
                   selectedModel === 'isnet_fp16'
-                    ? 'bg-blue-600 text-white shadow-2xs'
-                    : 'text-gray-600 dark:text-gray-400 hover:text-gray-900'
+                    ? 'bg-white dark:bg-zinc-950 text-zinc-900 dark:text-zinc-50 shadow-xs font-medium'
+                    : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900'
                 }`}
               >
                 isnet_fp16 (Standar)
@@ -285,10 +285,10 @@ export const Dropzone: React.FC<DropzoneProps> = ({
               <button
                 type="button"
                 onClick={() => onModelChange('isnet_quint8')}
-                className={`px-3 py-1 rounded-md text-xs font-medium transition-all ${
+                className={`px-2.5 py-1 rounded text-xs transition-colors cursor-pointer ${
                   selectedModel === 'isnet_quint8'
-                    ? 'bg-blue-600 text-white shadow-2xs'
-                    : 'text-gray-600 dark:text-gray-400 hover:text-gray-900'
+                    ? 'bg-white dark:bg-zinc-950 text-zinc-900 dark:text-zinc-50 shadow-xs font-medium'
+                    : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900'
                 }`}
               >
                 isnet_quint8 (Cepat)
@@ -296,64 +296,62 @@ export const Dropzone: React.FC<DropzoneProps> = ({
               <button
                 type="button"
                 onClick={() => onModelChange('isnet')}
-                className={`px-3 py-1 rounded-md text-xs font-medium transition-all ${
+                className={`px-2.5 py-1 rounded text-xs transition-colors cursor-pointer ${
                   selectedModel === 'isnet'
-                    ? 'bg-blue-600 text-white shadow-2xs'
-                    : 'text-gray-600 dark:text-gray-400 hover:text-gray-900'
+                    ? 'bg-white dark:bg-zinc-950 text-zinc-900 dark:text-zinc-50 shadow-xs font-medium'
+                    : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900'
                 }`}
               >
-                isnet (Presisi Tinggi)
+                isnet (Presisi)
               </button>
             </div>
           </div>
 
-          <div className="flex items-center justify-between pt-2 border-t border-gray-200 dark:border-gray-700">
+          <div className="flex items-center justify-between pt-3 border-t border-zinc-200 dark:border-zinc-800 text-xs">
             <div>
-              <span className="font-medium text-gray-800 dark:text-gray-200 block">
-                Auto-Resize Cepat (Maks 2048px)
+              <span className="font-medium text-zinc-900 dark:text-zinc-100 block">
+                Batasi Resolusi (Maks 2048px)
               </span>
-              <span className="text-xs text-gray-500">
-                Membatasi dimensi gambar sangat besar untuk menghemat RAM & mempercepat segmentasi
+              <span className="text-zinc-500">
+                Otomatis resize dimensi raksasa agar pemrosesan hemat memori
               </span>
             </div>
-            <label className="relative inline-flex items-center cursor-pointer">
-              <input
-                type="checkbox"
-                checked={autoResize}
-                onChange={(e) => onAutoResizeChange(e.target.checked)}
-                className="sr-only peer"
-              />
-              <div className="w-11 h-6 bg-gray-300 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-            </label>
+            <input
+              type="checkbox"
+              checked={autoResize}
+              onChange={(e) => onAutoResizeChange(e.target.checked)}
+              className="h-4 w-4 rounded border-zinc-300 text-zinc-900 accent-zinc-900 focus:ring-zinc-950 dark:accent-zinc-100"
+            />
           </div>
-        </div>
+        </Card>
       )}
 
-      <div className="space-y-3">
-        <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-gray-400">
-          <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-          <span>Atau coba sampel gambar berikut</span>
+      {/* Sample Images */}
+      <div className="space-y-2 pt-2">
+        <div className="flex items-center gap-1.5 text-xs text-zinc-500 font-medium">
+          <Sparkles className="w-3.5 h-3.5" />
+          <span>Atau coba sampel gambar</span>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
           {SAMPLE_IMAGES.map((sample) => (
             <button
               key={sample.id}
               type="button"
               onClick={() => handleSelectSample(sample)}
               disabled={isProcessing || isFetchingUrl}
-              className="group flex items-center gap-3 p-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800/90 hover:border-blue-400 hover:shadow-sm transition-all text-left disabled:opacity-50"
+              className="flex items-center gap-2.5 p-2 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 hover:bg-zinc-50 dark:hover:bg-zinc-900 text-left transition-colors disabled:opacity-50 cursor-pointer"
             >
               <img
                 src={sample.thumbnail}
                 alt={sample.title}
-                className="w-12 h-12 rounded-lg object-cover shrink-0 group-hover:scale-105 transition-transform"
+                className="w-10 h-10 rounded-md object-cover shrink-0"
               />
               <div className="min-w-0">
-                <span className="block text-sm font-semibold text-gray-800 dark:text-gray-200 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                <span className="block text-xs font-medium text-zinc-900 dark:text-zinc-100">
                   {sample.title}
                 </span>
-                <span className="block text-xs text-gray-400 truncate">
+                <span className="block text-[11px] text-zinc-500 truncate">
                   {sample.subtitle}
                 </span>
               </div>

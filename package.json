@@ -9,5 +9,8 @@
     "dev:api": "bun --filter api dev",
     "build": "bun --filter web build",
     "build:api": "bun --filter api build"
+  },
+  "devDependencies": {
+    "shadcn": "^4.22.1"
   }
 }

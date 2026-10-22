@@ -1,6 +1,7 @@
 import React from 'react';
 import { Eraser, Paintbrush, Undo2, Redo2, Eye } from 'lucide-react';
 import type { BrushConfig, BrushMode } from '../types';
+import { Button } from './ui/button';
 
 interface BrushToolbarProps {
   brushConfig: BrushConfig;
@@ -29,18 +30,17 @@ export const BrushToolbar: React.FC<BrushToolbarProps> = ({
   };
 
   return (
-    <div className="flex flex-wrap items-center justify-between gap-3 p-3 bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700">
-      {/* Left: Mode Selection */}
-      <div className="flex items-center gap-1.5 bg-gray-100 dark:bg-gray-900 p-1 rounded-xl">
+    <div className="flex flex-wrap items-center justify-between gap-3 p-2.5 bg-white dark:bg-zinc-950 rounded-xl border border-zinc-200 dark:border-zinc-800">
+      {/* Mode Selection */}
+      <div className="flex items-center gap-1 bg-zinc-100 dark:bg-zinc-900 p-1 rounded-lg">
         <button
           type="button"
           onClick={() => onToggleBrushActive(false)}
-          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors cursor-pointer ${
             !isBrushActive
-              ? 'bg-white dark:bg-gray-850 text-gray-900 dark:text-gray-100 shadow-2xs'
-              : 'text-gray-500 hover:text-gray-800 dark:text-gray-400'
+              ? 'bg-white dark:bg-zinc-950 text-zinc-950 dark:text-zinc-50 shadow-xs'
+              : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900'
           }`}
-          title="Mode Pratinjau / Geser"
         >
           <Eye className="w-3.5 h-3.5" />
           <span>Pratinjau</span>
@@ -49,37 +49,35 @@ export const BrushToolbar: React.FC<BrushToolbarProps> = ({
         <button
           type="button"
           onClick={() => setMode('erase')}
-          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors cursor-pointer ${
             isBrushActive && brushConfig.mode === 'erase'
-              ? 'bg-rose-500 text-white shadow-2xs'
-              : 'text-gray-600 dark:text-gray-300 hover:text-gray-900'
+              ? 'bg-zinc-900 text-zinc-50 dark:bg-zinc-50 dark:text-zinc-900 shadow-xs'
+              : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900'
           }`}
-          title="Hapus bagian yang tersisa dari latar belakang"
         >
           <Eraser className="w-3.5 h-3.5" />
-          <span>Hapus (Erase)</span>
+          <span>Hapus</span>
         </button>
 
         <button
           type="button"
           onClick={() => setMode('restore')}
-          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors cursor-pointer ${
             isBrushActive && brushConfig.mode === 'restore'
-              ? 'bg-emerald-500 text-white shadow-2xs'
-              : 'text-gray-600 dark:text-gray-300 hover:text-gray-900'
+              ? 'bg-zinc-900 text-zinc-50 dark:bg-zinc-50 dark:text-zinc-900 shadow-xs'
+              : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900'
           }`}
-          title="Pulihkan objek asli yang tidak sengaja terpotong"
         >
           <Paintbrush className="w-3.5 h-3.5" />
-          <span>Pulihkan (Restore)</span>
+          <span>Pulihkan</span>
         </button>
       </div>
 
-      {/* Center: Sliders */}
+      {/* Sliders */}
       {isBrushActive && (
-        <div className="flex items-center gap-4 flex-1 max-w-md px-2 animate-in fade-in duration-150">
+        <div className="flex items-center gap-4 flex-1 max-w-sm px-2">
           <div className="flex items-center gap-2 flex-1">
-            <span className="text-[11px] font-medium text-gray-500 shrink-0">Ukuran</span>
+            <span className="text-[11px] font-medium text-zinc-500 shrink-0">Ukuran</span>
             <input
               type="range"
               min={5}
@@ -91,15 +89,15 @@ export const BrushToolbar: React.FC<BrushToolbarProps> = ({
                   size: Number(e.target.value),
                 })
               }
-              className="w-full h-1.5 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer accent-blue-600"
+              className="w-full h-1.5 bg-zinc-200 dark:bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-zinc-900 dark:accent-zinc-100"
             />
-            <span className="text-[11px] font-mono text-gray-600 dark:text-gray-400 w-8 text-right">
+            <span className="text-[11px] font-mono text-zinc-500 w-8 text-right">
               {brushConfig.size}px
             </span>
           </div>
 
           <div className="flex items-center gap-2 flex-1">
-            <span className="text-[11px] font-medium text-gray-500 shrink-0">Kelembutan</span>
+            <span className="text-[11px] font-medium text-zinc-500 shrink-0">Feather</span>
             <input
               type="range"
               min={0}
@@ -112,35 +110,39 @@ export const BrushToolbar: React.FC<BrushToolbarProps> = ({
                   hardness: Number(e.target.value),
                 })
               }
-              className="w-full h-1.5 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer accent-blue-600"
+              className="w-full h-1.5 bg-zinc-200 dark:bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-zinc-900 dark:accent-zinc-100"
             />
-            <span className="text-[11px] font-mono text-gray-600 dark:text-gray-400 w-9 text-right">
+            <span className="text-[11px] font-mono text-zinc-500 w-8 text-right">
               {Math.round(brushConfig.hardness * 100)}%
             </span>
           </div>
         </div>
       )}
 
-      {/* Right: Undo / Redo */}
+      {/* Undo / Redo */}
       <div className="flex items-center gap-1">
-        <button
+        <Button
           type="button"
+          variant="ghost"
+          size="icon"
           onClick={onUndo}
           disabled={!canUndo}
-          className="p-2 rounded-xl text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+          className="h-8 w-8 text-zinc-600 dark:text-zinc-400"
           title="Undo (Ctrl+Z)"
         >
           <Undo2 className="w-4 h-4" />
-        </button>
-        <button
+        </Button>
+        <Button
           type="button"
+          variant="ghost"
+          size="icon"
           onClick={onRedo}
           disabled={!canRedo}
-          className="p-2 rounded-xl text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+          className="h-8 w-8 text-zinc-600 dark:text-zinc-400"
           title="Redo (Ctrl+Y)"
         >
           <Redo2 className="w-4 h-4" />
-        </button>
+        </Button>
       </div>
     </div>
   );

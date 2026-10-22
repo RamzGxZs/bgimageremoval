@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Download, Copy, Check, CloudUpload, RotateCcw } from 'lucide-react';
 import { copyImageToClipboard, downloadBlob } from '../lib/imageUtils';
+import { Button } from './ui/button';
 
 interface ExportToolbarProps {
   onExport: (format: 'image/png' | 'image/webp') => Promise<Blob>;
@@ -65,28 +66,30 @@ export const ExportToolbar: React.FC<ExportToolbarProps> = ({
   };
 
   return (
-    <div className="flex flex-wrap items-center justify-between gap-3 p-4 bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 w-full max-w-4xl mx-auto">
-      {/* Left: Reset / New image */}
-      <button
+    <div className="flex flex-wrap items-center justify-between gap-3 p-3 bg-white dark:bg-zinc-950 rounded-xl border border-zinc-200 dark:border-zinc-800 w-full max-w-4xl mx-auto shadow-xs">
+      {/* Left */}
+      <Button
         type="button"
+        variant="ghost"
+        size="sm"
         onClick={onReset}
-        className="flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+        className="text-xs text-zinc-600 dark:text-zinc-400"
       >
-        <RotateCcw className="w-4 h-4" />
+        <RotateCcw className="w-3.5 h-3.5" />
         <span>Ganti Gambar</span>
-      </button>
+      </Button>
 
-      {/* Right: Format selector & Action buttons */}
+      {/* Right */}
       <div className="flex flex-wrap items-center gap-2">
-        {/* Format selector */}
-        <div className="flex items-center bg-gray-100 dark:bg-gray-900 p-1 rounded-xl">
+        {/* Format Selector */}
+        <div className="flex items-center bg-zinc-100 dark:bg-zinc-900 p-0.5 rounded-md">
           <button
             type="button"
             onClick={() => setFormat('image/png')}
-            className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-all ${
+            className={`px-2 py-1 rounded text-xs transition-colors cursor-pointer ${
               format === 'image/png'
-                ? 'bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 shadow-2xs'
-                : 'text-gray-500 hover:text-gray-800 dark:text-gray-400'
+                ? 'bg-white dark:bg-zinc-950 text-zinc-950 dark:text-zinc-50 shadow-xs font-medium'
+                : 'text-zinc-500 hover:text-zinc-900'
             }`}
           >
             PNG
@@ -94,70 +97,74 @@ export const ExportToolbar: React.FC<ExportToolbarProps> = ({
           <button
             type="button"
             onClick={() => setFormat('image/webp')}
-            className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-all ${
+            className={`px-2 py-1 rounded text-xs transition-colors cursor-pointer ${
               format === 'image/webp'
-                ? 'bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 shadow-2xs'
-                : 'text-gray-500 hover:text-gray-800 dark:text-gray-400'
+                ? 'bg-white dark:bg-zinc-950 text-zinc-950 dark:text-zinc-50 shadow-xs font-medium'
+                : 'text-zinc-500 hover:text-zinc-900'
             }`}
           >
             WebP
           </button>
         </div>
 
-        {/* Copy to clipboard */}
-        <button
+        {/* Copy Image Button */}
+        <Button
           type="button"
+          variant="outline"
+          size="sm"
           onClick={handleCopyClipboard}
           disabled={isExporting}
-          className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-gray-200 dark:border-gray-700 text-xs font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50"
-          title="Salin langsung untuk ditempel di Figma, WhatsApp, atau dokumen"
+          className="text-xs"
         >
           {copied ? (
             <>
-              <Check className="w-4 h-4 text-emerald-500" />
-              <span className="text-emerald-600 dark:text-emerald-400">Tersalin!</span>
+              <Check className="w-3.5 h-3.5 text-zinc-900 dark:text-zinc-100" />
+              <span>Tersalin</span>
             </>
           ) : (
             <>
-              <Copy className="w-4 h-4" />
-              <span>Copy Image</span>
+              <Copy className="w-3.5 h-3.5" />
+              <span>Copy</span>
             </>
           )}
-        </button>
+        </Button>
 
-        {/* Cloud Save Button */}
+        {/* Save to Cloud Button */}
         {onSaveToCloud && (
-          <button
+          <Button
             type="button"
+            variant="outline"
+            size="sm"
             onClick={handleCloudSave}
             disabled={isSavingToCloud}
-            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-indigo-200 dark:border-indigo-800 bg-indigo-50/50 dark:bg-indigo-950/30 text-xs font-medium text-indigo-600 dark:text-indigo-400 hover:bg-indigo-100 transition-colors disabled:opacity-50"
-            title="Simpan hasil olahan ke Cloudflare R2 & D1"
+            className="text-xs"
           >
             {savedCloud ? (
               <>
-                <Check className="w-4 h-4 text-emerald-500" />
-                <span>Tersimpan di Cloud</span>
+                <Check className="w-3.5 h-3.5" />
+                <span>Tersimpan</span>
               </>
             ) : (
               <>
-                <CloudUpload className="w-4 h-4" />
-                <span>{isSavingToCloud ? 'Menyimpan...' : 'Simpan ke Cloud'}</span>
+                <CloudUpload className="w-3.5 h-3.5" />
+                <span>{isSavingToCloud ? 'Menyimpan...' : 'Simpan Cloud'}</span>
               </>
             )}
-          </button>
+          </Button>
         )}
 
-        {/* Main Download Button */}
-        <button
+        {/* Download Button */}
+        <Button
           type="button"
+          variant="default"
+          size="sm"
           onClick={handleDownload}
           disabled={isExporting}
-          className="flex items-center gap-2 px-5 py-2 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-xs font-semibold shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/30 transition-all disabled:opacity-50"
+          className="text-xs font-semibold px-4"
         >
-          <Download className="w-4 h-4" />
+          <Download className="w-3.5 h-3.5" />
           <span>Unduh {format === 'image/png' ? 'PNG' : 'WebP'}</span>
-        </button>
+        </Button>
       </div>
     </div>
   );
