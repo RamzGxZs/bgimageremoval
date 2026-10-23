@@ -5,7 +5,7 @@ Web app penghapus latar belakang gambar (*background remover*) berbasis AI denga
 ## Arsitektur & Teknologi Utama
 
 * **Frontend (`apps/web`):** [Vite](https://vite.dev/) + React 19 + TypeScript + Tailwind CSS (Deploy ke Vercel).
-* **AI Engine:** [`@imgly/background-removal`](https://github.com/imgly/background-removal-js) — Inferensi segmentasi berjalan 100% di browser pengguna via WebAssembly (`SharedArrayBuffer`) & ONNX Runtime Web.
+* **AI Engine:** **BRIA RMBG-1.4** via [`@huggingface/transformers`](https://github.com/huggingface/transformers.js) — Model segmentasi SOTA (*State of the Art*) yang berjalan **100% Full Offline** langsung di browser pengguna via WebGPU & WebAssembly (`ort-wasm-simd-threaded`). Seluruh bobot model dan binary runtime disimpan secara lokal di repositori (`public/models` dan `public/ort`), tanpa ketergantungan koneksi ke server eksternal saat pemrosesan.
 * **Backend API (`apps/api`):** [Hono](https://hono.dev/) di Cloudflare Workers.
 * **Database & Storage:** Cloudflare D1 (SQLite serverless) untuk riwayat metadata & Cloudflare R2 untuk penyimpanan blob gambar hasil potongan tanpa biaya *egress*.
 * **Package Manager & Runtime:** [Bun](https://bun.sh/) (Monorepo Workspaces).

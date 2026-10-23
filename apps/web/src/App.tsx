@@ -21,8 +21,8 @@ import { Button } from './components/ui/button';
 import { Badge } from './components/ui/badge';
 
 export function App() {
-  const [selectedModel] = useState<ModelType>('isnet_fp16');
-  const [autoResize] = useState<boolean>(true);
+  const [selectedModel, setSelectedModel] = useState<ModelType>('bria-rmbg-1.4');
+  const [autoResize, setAutoResize] = useState<boolean>(true);
   const [currentFilename, setCurrentFilename] = useState<string>('image.png');
   const [bgImageName, setBgImageName] = useState<string | null>(null);
 
@@ -185,59 +185,98 @@ export function App() {
   };
 
   return (
-    <div className="min-h-screen bg-white dark:bg-zinc-950 text-zinc-950 dark:text-zinc-50 flex flex-col font-sans">
-      {/* Header */}
-      <header className="border-b border-zinc-200 dark:border-zinc-800 bg-white/95 dark:bg-zinc-950/95 backdrop-blur-xs sticky top-0 z-30">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-zinc-900 dark:bg-zinc-100 text-zinc-50 dark:text-zinc-900 flex items-center justify-center font-bold">
-              <Sparkles className="w-4 h-4" />
+    <div className="h-screen max-h-screen flex flex-col bg-background text-foreground overflow-hidden font-sans">
+      {/* Top Header Bar */}
+      <header className="h-14 shrink-0 border-b border-border bg-background/95 backdrop-blur-xs z-30 px-3 sm:px-4 flex items-center justify-between">
+        <div className="flex items-center gap-2.5 min-w-0">
+          {result ? (
+            // Studio Mode Header: Back button + Title + Filename + Dimensions
+            <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                onClick={handleReset}
+                className="h-8 w-8 shrink-0"
+                title="Ganti Gambar"
+              >
+                <ArrowLeft className="w-4 h-4" />
+              </Button>
+
+              <div className="hidden md:flex items-center gap-2 shrink-0">
+                <div className="w-7 h-7 rounded-md bg-primary text-primary-foreground flex items-center justify-center font-bold">
+                  <Sparkles className="w-3.5 h-3.5" />
+                </div>
+                <span className="font-semibold text-sm tracking-tight text-foreground">
+                  BG Remover
+                </span>
+                <span className="text-border">|</span>
+              </div>
+
+              <div className="flex items-center gap-2 min-w-0">
+                <h2 className="text-xs sm:text-sm font-semibold text-foreground truncate max-w-[120px] sm:max-w-[200px] md:max-w-xs">
+                  {currentFilename}
+                </h2>
+                <div className="flex items-center gap-1.5 text-[11px] font-mono text-muted-foreground bg-secondary/80 px-2 py-0.5 rounded border border-border/60 shrink-0">
+                  <span>{result.width}×{result.height}</span>
+                  <span>•</span>
+                  <span>{(result.durationMs / 1000).toFixed(1)}s</span>
+                </div>
+              </div>
             </div>
-            <span className="font-semibold text-base tracking-tight">
-              BG Remover
-            </span>
-            <Badge variant="outline" className="text-xs font-medium px-2 py-0.5">
-              AI Client-side
-            </Badge>
-          </div>
+          ) : (
+            // Ingestion Mode Header
+            <div className="flex items-center gap-2.5">
+              <div className="w-7 h-7 rounded-md bg-primary text-primary-foreground flex items-center justify-center font-bold">
+                <Sparkles className="w-3.5 h-3.5" />
+              </div>
+              <span className="font-semibold text-sm sm:text-base tracking-tight text-foreground">
+                BG Remover
+              </span>
+              <Badge variant="outline" className="text-[11px] font-medium px-2 py-0.5 text-emerald-600 dark:text-emerald-400 border-emerald-500/30 bg-emerald-500/10 flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                BRIA RMBG-1.4 (Offline)
+              </Badge>
+            </div>
+          )}
+        </div>
 
-          <div className="flex items-center gap-2.5">
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              onClick={toggleDarkMode}
-              className="h-9 w-9 text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100"
-              title={isDarkMode ? 'Beralih ke Mode Terang' : 'Beralih ke Mode Gelap'}
-            >
-              {isDarkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
-            </Button>
+        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            onClick={toggleDarkMode}
+            className="h-8 w-8 text-muted-foreground hover:text-foreground"
+            title={isDarkMode ? 'Beralih ke Mode Terang' : 'Beralih ke Mode Gelap'}
+          >
+            {isDarkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+          </Button>
 
-            <Button
-              type="button"
-              variant="outline"
-              size="default"
-              onClick={() => setIsHistoryOpen(true)}
-              className="h-9 text-sm font-medium"
-            >
-              <History className="w-4 h-4" />
-              <span>Riwayat</span>
-            </Button>
-          </div>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => setIsHistoryOpen(true)}
+            className="h-8 text-xs font-medium px-2.5"
+          >
+            <History className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Riwayat</span>
+          </Button>
         </div>
       </header>
 
-      {/* Main Container */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-6 sm:py-10 flex flex-col justify-center">
+      {/* Main Single-Viewport Container */}
+      <main className="flex-1 min-h-0 w-full overflow-hidden flex flex-col">
         {!result ? (
-          // Ingestion View: Simple Title + In-Place Dropzone (Enlarged)
-          <div className="w-full flex flex-col items-center space-y-8 max-w-2xl mx-auto my-auto py-8">
-            <div className="text-center space-y-2">
-              <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">
+          // Ingestion View: Centered Dropzone (Zero-Scroll Viewport)
+          <div className="flex-1 min-h-0 flex flex-col items-center justify-center p-4 overflow-y-auto w-full max-w-xl mx-auto">
+            <div className="text-center space-y-1 mb-4 sm:mb-6">
+              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
                 Hapus Latar Belakang
               </h1>
-              <p className="text-base text-zinc-500 dark:text-zinc-400">
-                Unggah gambar untuk menghapus latar belakang secara otomatis dengan AI lokal.
+              <p className="text-xs sm:text-sm text-muted-foreground">
+                Unggah gambar untuk menghapus latar belakang otomatis dengan AI offline.
               </p>
             </div>
 
@@ -245,82 +284,57 @@ export function App() {
               onImageSelected={handleImageSelected}
               isProcessing={isProcessing}
               progress={progress}
+              selectedModel={selectedModel}
+              onModelChange={setSelectedModel}
+              autoResize={autoResize}
+              onAutoResizeChange={setAutoResize}
             />
           </div>
         ) : (
-          // Two-Column Studio Editor View
-          <div className="w-full flex flex-col space-y-4">
-            {/* Meta Bar */}
-            <div className="flex flex-wrap items-center justify-between px-1 gap-2">
-              <div className="flex items-center gap-3">
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="icon"
-                  onClick={handleReset}
-                  className="h-9 w-9"
-                  title="Kembali"
-                >
-                  <ArrowLeft className="w-4 h-4" />
-                </Button>
-                <div>
-                  <h2 className="text-base font-semibold text-zinc-900 dark:text-zinc-100 truncate max-w-xs sm:max-w-md">
-                    {currentFilename}
-                  </h2>
-                  <div className="flex items-center gap-2 text-xs text-zinc-500 dark:text-zinc-400">
-                    <span>{result.width} × {result.height} px</span>
-                    <span>•</span>
-                    <span className="font-mono">{(result.durationMs / 1000).toFixed(1)}s</span>
-                  </div>
-                </div>
-              </div>
+          // Two-Column Studio Editor View (Zero-Scroll Viewport)
+          <div className="flex-1 min-h-0 flex flex-col lg:flex-row p-3 gap-3 overflow-hidden w-full max-w-[1920px] mx-auto">
+            {/* Left Column: Dynamic Flex-Sized Canvas & Toolbars */}
+            <div className="flex-1 min-h-0 flex flex-col gap-2 min-w-0 overflow-hidden">
+              {isCompositorReady && (
+                <EditorCanvas
+                  width={result.width}
+                  height={result.height}
+                  bgConfig={bgConfig}
+                  brushConfig={brushConfig}
+                  isBrushActive={isBrushActive}
+                  onDrawStroke={drawBrushStroke}
+                  renderComposite={renderComposite}
+                />
+              )}
+
+              <BrushToolbar
+                brushConfig={brushConfig}
+                onBrushConfigChange={setBrushConfig}
+                isBrushActive={isBrushActive}
+                onToggleBrushActive={setIsBrushActive}
+                onUndo={undo}
+                onRedo={redo}
+                canUndo={canUndo}
+                canRedo={canRedo}
+              />
             </div>
 
-            {/* 2-Column Responsive Layout */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
-              {/* Left Column: Canvas & Brush Controls */}
-              <div className="lg:col-span-8 flex flex-col space-y-3">
-                {isCompositorReady && (
-                  <EditorCanvas
-                    width={result.width}
-                    height={result.height}
-                    bgConfig={bgConfig}
-                    brushConfig={brushConfig}
-                    isBrushActive={isBrushActive}
-                    onDrawStroke={drawBrushStroke}
-                    renderComposite={renderComposite}
-                  />
-                )}
+            {/* Right Column (Sidebar Inspector): Export & Background Controls */}
+            <div className="w-full lg:w-80 xl:w-88 flex flex-col min-h-0 shrink-0 gap-2.5 overflow-y-auto pr-0.5">
+              <ExportToolbar
+                onExport={(format) => exportBlob(bgConfig, format)}
+                originalFilename={currentFilename}
+                onReset={handleReset}
+                onSaveToCloud={handleSaveToCloud}
+                isSavingToCloud={isSavingToCloud}
+              />
 
-                <BrushToolbar
-                  brushConfig={brushConfig}
-                  onBrushConfigChange={setBrushConfig}
-                  isBrushActive={isBrushActive}
-                  onToggleBrushActive={setIsBrushActive}
-                  onUndo={undo}
-                  onRedo={redo}
-                  canUndo={canUndo}
-                  canRedo={canRedo}
-                />
-              </div>
-
-              {/* Right Column (Sidebar Inspector): Export Actions & Background Options */}
-              <div className="lg:col-span-4 flex flex-col space-y-4 lg:sticky lg:top-20">
-                <ExportToolbar
-                  onExport={(format) => exportBlob(bgConfig, format)}
-                  originalFilename={currentFilename}
-                  onReset={handleReset}
-                  onSaveToCloud={handleSaveToCloud}
-                  isSavingToCloud={isSavingToCloud}
-                />
-
-                <BackgroundPanel
-                  bgConfig={bgConfig}
-                  onBgConfigChange={setBgConfig}
-                  onSelectBackgroundImage={handleSelectBackgroundImage}
-                  bgImageName={bgImageName}
-                />
-              </div>
+              <BackgroundPanel
+                bgConfig={bgConfig}
+                onBgConfigChange={setBgConfig}
+                onSelectBackgroundImage={handleSelectBackgroundImage}
+                bgImageName={bgImageName}
+              />
             </div>
           </div>
         )}

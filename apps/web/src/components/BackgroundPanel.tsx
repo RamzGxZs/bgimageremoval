@@ -64,22 +64,22 @@ export const BackgroundPanel: React.FC<BackgroundPanelProps> = ({
 
   return (
     <Card className="shadow-xs">
-      <CardContent className="p-5 space-y-5">
+      <CardContent className="p-3.5 space-y-3.5">
         {/* Header & Tabs */}
-        <div className="space-y-3">
-          <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-zinc-500">
-            <Layers className="w-4 h-4" />
+        <div className="space-y-2.5">
+          <div className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            <Layers className="w-3.5 h-3.5" />
             <span>Pilihan Latar Belakang</span>
           </div>
 
-          <div className="grid grid-cols-4 gap-1 p-1 bg-zinc-100 dark:bg-zinc-900 rounded-lg">
+          <div className="grid grid-cols-4 gap-0.5 p-0.5 bg-secondary rounded-lg border border-border/50">
             <button
               type="button"
               onClick={() => handleTypeSelect('transparent')}
-              className={`py-2 px-2 rounded-md text-xs sm:text-sm font-medium transition-colors cursor-pointer ${
+              className={`py-1.5 px-1 rounded text-xs font-medium transition-colors cursor-pointer ${
                 bgConfig.type === 'transparent'
-                  ? 'bg-white dark:bg-zinc-950 text-zinc-950 dark:text-zinc-50 shadow-xs'
-                  : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900'
+                  ? 'bg-background text-foreground shadow-xs font-semibold'
+                  : 'text-muted-foreground hover:text-foreground hover:bg-background/50'
               }`}
             >
               Transparan
@@ -87,10 +87,10 @@ export const BackgroundPanel: React.FC<BackgroundPanelProps> = ({
             <button
               type="button"
               onClick={() => handleTypeSelect('color')}
-              className={`py-2 px-2 rounded-md text-xs sm:text-sm font-medium transition-colors cursor-pointer ${
+              className={`py-1.5 px-1 rounded text-xs font-medium transition-colors cursor-pointer ${
                 bgConfig.type === 'color'
-                  ? 'bg-white dark:bg-zinc-950 text-zinc-950 dark:text-zinc-50 shadow-xs'
-                  : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900'
+                  ? 'bg-background text-foreground shadow-xs font-semibold'
+                  : 'text-muted-foreground hover:text-foreground hover:bg-background/50'
               }`}
             >
               Warna
@@ -98,10 +98,10 @@ export const BackgroundPanel: React.FC<BackgroundPanelProps> = ({
             <button
               type="button"
               onClick={() => handleTypeSelect('image')}
-              className={`py-2 px-2 rounded-md text-xs sm:text-sm font-medium transition-colors cursor-pointer ${
+              className={`py-1.5 px-1 rounded text-xs font-medium transition-colors cursor-pointer ${
                 bgConfig.type === 'image'
-                  ? 'bg-white dark:bg-zinc-950 text-zinc-950 dark:text-zinc-50 shadow-xs'
-                  : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900'
+                  ? 'bg-background text-foreground shadow-xs font-semibold'
+                  : 'text-muted-foreground hover:text-foreground hover:bg-background/50'
               }`}
             >
               Foto
@@ -109,10 +109,10 @@ export const BackgroundPanel: React.FC<BackgroundPanelProps> = ({
             <button
               type="button"
               onClick={() => handleTypeSelect('blur')}
-              className={`py-2 px-2 rounded-md text-xs sm:text-sm font-medium transition-colors cursor-pointer ${
+              className={`py-1.5 px-1 rounded text-xs font-medium transition-colors cursor-pointer ${
                 bgConfig.type === 'blur'
-                  ? 'bg-white dark:bg-zinc-950 text-zinc-950 dark:text-zinc-50 shadow-xs'
-                  : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900'
+                  ? 'bg-background text-foreground shadow-xs font-semibold'
+                  : 'text-muted-foreground hover:text-foreground hover:bg-background/50'
               }`}
             >
               Blur Asli
@@ -122,53 +122,53 @@ export const BackgroundPanel: React.FC<BackgroundPanelProps> = ({
 
         {/* Color Palette & Passport Photo Badges */}
         {bgConfig.type === 'color' && (
-          <div className="space-y-4 animate-in fade-in duration-150">
-            {/* Dedicated Passport Photo Quick Buttons - Larger & Legible */}
-            <div className="space-y-2">
-              <span className="text-xs font-semibold text-zinc-600 dark:text-zinc-400">Preset Pasfoto Resmi</span>
-              <div className="grid grid-cols-2 gap-2.5">
+          <div className="space-y-3 animate-in fade-in duration-150">
+            {/* Dedicated Passport Photo Quick Buttons */}
+            <div className="space-y-1.5">
+              <span className="text-[11px] font-semibold text-muted-foreground">Preset Pasfoto Resmi</span>
+              <div className="grid grid-cols-2 gap-2">
                 <button
                   type="button"
                   onClick={() => handleColorSelect('#dc2626')}
-                  className={`flex items-center gap-2.5 p-3 rounded-lg border text-sm font-medium transition-all cursor-pointer ${
+                  className={`flex items-center gap-2 p-2 rounded-lg border text-xs font-medium transition-all cursor-pointer ${
                     bgConfig.color.toLowerCase() === '#dc2626'
-                      ? 'border-zinc-950 dark:border-zinc-100 bg-zinc-50 dark:bg-zinc-900 ring-1 ring-zinc-950 dark:ring-zinc-100'
-                      : 'border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700'
+                      ? 'border-primary bg-accent ring-1 ring-primary text-foreground'
+                      : 'border-border hover:border-border/80 hover:bg-accent/50 text-foreground'
                   }`}
                 >
-                  <span className="w-4 h-4 rounded-full bg-[#dc2626] shrink-0 shadow-2xs" />
+                  <span className="w-3.5 h-3.5 rounded-full bg-[#dc2626] shrink-0 shadow-2xs" />
                   <span className="truncate">Merah Pasfoto</span>
                 </button>
 
                 <button
                   type="button"
                   onClick={() => handleColorSelect('#2563eb')}
-                  className={`flex items-center gap-2.5 p-3 rounded-lg border text-sm font-medium transition-all cursor-pointer ${
+                  className={`flex items-center gap-2 p-2 rounded-lg border text-xs font-medium transition-all cursor-pointer ${
                     bgConfig.color.toLowerCase() === '#2563eb'
-                      ? 'border-zinc-950 dark:border-zinc-100 bg-zinc-50 dark:bg-zinc-900 ring-1 ring-zinc-950 dark:ring-zinc-100'
-                      : 'border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700'
+                      ? 'border-primary bg-accent ring-1 ring-primary text-foreground'
+                      : 'border-border hover:border-border/80 hover:bg-accent/50 text-foreground'
                   }`}
                 >
-                  <span className="w-4 h-4 rounded-full bg-[#2563eb] shrink-0 shadow-2xs" />
+                  <span className="w-3.5 h-3.5 rounded-full bg-[#2563eb] shrink-0 shadow-2xs" />
                   <span className="truncate">Biru Pasfoto</span>
                 </button>
               </div>
             </div>
 
             {/* Standard Swatches & Custom Color Picker */}
-            <div className="space-y-2 pt-1">
-              <span className="text-xs font-semibold text-zinc-600 dark:text-zinc-400">Warna Lainnya</span>
-              <div className="flex flex-wrap items-center gap-2.5">
+            <div className="space-y-1.5 pt-0.5">
+              <span className="text-[11px] font-semibold text-muted-foreground">Warna Lainnya</span>
+              <div className="flex flex-wrap items-center gap-2">
                 {PRESET_COLORS.map((preset) => (
                   <button
                     key={preset.value}
                     type="button"
                     onClick={() => handleColorSelect(preset.value)}
-                    className={`w-9 h-9 rounded-full transition-transform hover:scale-110 cursor-pointer shadow-2xs ${
-                      preset.border ? 'border border-zinc-200 dark:border-zinc-700' : ''
+                    className={`w-7 h-7 rounded-full transition-transform hover:scale-110 cursor-pointer shadow-2xs ${
+                      preset.border ? 'border border-border' : ''
                     } ${
                       bgConfig.color.toLowerCase() === preset.value.toLowerCase()
-                        ? 'ring-2 ring-zinc-950 ring-offset-2 dark:ring-zinc-100 dark:ring-offset-zinc-950'
+                        ? 'ring-2 ring-ring ring-offset-2 ring-offset-background'
                         : ''
                     }`}
                     style={{ backgroundColor: preset.value }}
@@ -176,17 +176,17 @@ export const BackgroundPanel: React.FC<BackgroundPanelProps> = ({
                   />
                 ))}
 
-                <label className="w-9 h-9 rounded-full border border-zinc-300 dark:border-zinc-700 overflow-hidden cursor-pointer flex items-center justify-center hover:scale-110 transition-transform bg-zinc-50 dark:bg-zinc-900 shadow-2xs">
+                <label className="w-7 h-7 rounded-full border border-border overflow-hidden cursor-pointer flex items-center justify-center hover:scale-110 transition-transform bg-secondary shadow-2xs">
                   <input
                     type="color"
                     value={bgConfig.color}
                     onChange={(e) => handleColorSelect(e.target.value)}
                     className="opacity-0 w-0 h-0"
                   />
-                  <Palette className="w-4 h-4 text-zinc-600 dark:text-zinc-300" />
+                  <Palette className="w-3.5 h-3.5 text-foreground" />
                 </label>
 
-                <span className="text-xs font-mono font-medium text-zinc-500 uppercase ml-1">
+                <span className="text-[11px] font-mono font-medium text-muted-foreground uppercase ml-0.5">
                   {bgConfig.color}
                 </span>
               </div>
@@ -196,10 +196,10 @@ export const BackgroundPanel: React.FC<BackgroundPanelProps> = ({
 
         {/* Blur Slider */}
         {bgConfig.type === 'blur' && (
-          <div className="space-y-3">
-            <div className="flex items-center justify-between text-sm">
-              <span className="font-medium text-zinc-700 dark:text-zinc-300">Intensitas Blur</span>
-              <span className="font-mono text-zinc-500 text-xs">{bgConfig.blurRadius}px</span>
+          <div className="space-y-2">
+            <div className="flex items-center justify-between text-xs">
+              <span className="font-medium text-foreground">Intensitas Blur</span>
+              <span className="font-mono text-muted-foreground text-[11px]">{bgConfig.blurRadius}px</span>
             </div>
             <input
               type="range"
@@ -212,7 +212,7 @@ export const BackgroundPanel: React.FC<BackgroundPanelProps> = ({
                   blurRadius: Number(e.target.value),
                 })
               }
-              className="w-full h-2 bg-zinc-200 dark:bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-zinc-900 dark:accent-zinc-100"
+              className="w-full h-1.5 bg-secondary rounded-lg appearance-none cursor-pointer accent-primary"
             />
           </div>
         )}
@@ -229,10 +229,10 @@ export const BackgroundPanel: React.FC<BackgroundPanelProps> = ({
             />
 
             {bgImageName ? (
-              <div className="flex items-center justify-between p-3 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900">
-                <div className="flex items-center gap-2.5 min-w-0">
-                  <ImageIcon className="w-5 h-5 text-zinc-500 shrink-0" />
-                  <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300 truncate">
+              <div className="flex items-center justify-between p-2.5 rounded-lg border border-border bg-secondary/40">
+                <div className="flex items-center gap-2 min-w-0">
+                  <ImageIcon className="w-4 h-4 text-muted-foreground shrink-0" />
+                  <span className="text-xs font-medium text-foreground truncate">
                     {bgImageName}
                   </span>
                 </div>
@@ -241,19 +241,19 @@ export const BackgroundPanel: React.FC<BackgroundPanelProps> = ({
                   variant="ghost"
                   size="icon"
                   onClick={handleRemoveImage}
-                  className="h-8 w-8 text-zinc-500 hover:text-red-500"
+                  className="h-7 w-7 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
                 >
-                  <X className="w-4 h-4" />
+                  <X className="w-3.5 h-3.5" />
                 </Button>
               </div>
             ) : (
               <Button
                 type="button"
                 variant="outline"
-                className="w-full justify-center text-sm font-medium h-11"
+                className="w-full justify-center text-xs font-medium h-9"
                 onClick={() => fileInputRef.current?.click()}
               >
-                <ImageIcon className="w-4 h-4" />
+                <ImageIcon className="w-3.5 h-3.5" />
                 <span>Pilih Foto Latar Belakang</span>
               </Button>
             )}
@@ -261,11 +261,11 @@ export const BackgroundPanel: React.FC<BackgroundPanelProps> = ({
         )}
 
         {/* Drop Shadow Section */}
-        <div className="pt-4 border-t border-zinc-200 dark:border-zinc-800 space-y-4">
+        <div className="pt-2.5 border-t border-border space-y-2.5">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <SunMedium className="w-4 h-4 text-zinc-500" />
-              <span className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
+            <div className="flex items-center gap-1.5">
+              <SunMedium className="w-3.5 h-3.5 text-muted-foreground" />
+              <span className="text-xs font-medium text-foreground">
                 Drop Shadow
               </span>
             </div>
@@ -278,14 +278,14 @@ export const BackgroundPanel: React.FC<BackgroundPanelProps> = ({
                   dropShadow: e.target.checked,
                 })
               }
-              className="h-4.5 w-4.5 rounded border-zinc-300 text-zinc-900 accent-zinc-900 focus:ring-zinc-950 dark:accent-zinc-100"
+              className="h-4 w-4 rounded border-input text-primary accent-primary focus:ring-ring cursor-pointer"
             />
           </div>
 
           {bgConfig.dropShadow && (
-            <div className="grid grid-cols-2 gap-4 pt-1">
-              <div className="space-y-1.5">
-                <div className="flex justify-between text-xs text-zinc-500 font-medium">
+            <div className="grid grid-cols-2 gap-3 pt-0.5">
+              <div className="space-y-1">
+                <div className="flex justify-between text-[11px] text-muted-foreground font-medium">
                   <span>Blur</span>
                   <span className="font-mono">{bgConfig.shadowBlur}px</span>
                 </div>
@@ -300,12 +300,12 @@ export const BackgroundPanel: React.FC<BackgroundPanelProps> = ({
                       shadowBlur: Number(e.target.value),
                     })
                   }
-                  className="w-full h-2 bg-zinc-200 dark:bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-zinc-900 dark:accent-zinc-100"
+                  className="w-full h-1.5 bg-secondary rounded-lg appearance-none cursor-pointer accent-primary"
                 />
               </div>
 
-              <div className="space-y-1.5">
-                <div className="flex justify-between text-xs text-zinc-500 font-medium">
+              <div className="space-y-1">
+                <div className="flex justify-between text-[11px] text-muted-foreground font-medium">
                   <span>Offset Y</span>
                   <span className="font-mono">{bgConfig.shadowOffsetY}px</span>
                 </div>
@@ -320,7 +320,7 @@ export const BackgroundPanel: React.FC<BackgroundPanelProps> = ({
                       shadowOffsetY: Number(e.target.value),
                     })
                   }
-                  className="w-full h-2 bg-zinc-200 dark:bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-zinc-900 dark:accent-zinc-100"
+                  className="w-full h-1.5 bg-secondary rounded-lg appearance-none cursor-pointer accent-primary"
                 />
               </div>
             </div>

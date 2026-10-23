@@ -173,38 +173,38 @@ export const EditorCanvas: React.FC<EditorCanvasProps> = ({
   };
 
   return (
-    <div className="flex flex-col items-center w-full space-y-3">
-      {/* Top Controls Toolbar - Larger size */}
-      <div className="flex items-center justify-between w-full px-1">
+    <div className="flex flex-col w-full h-full flex-1 min-h-0 gap-2">
+      {/* Top Controls Toolbar */}
+      <div className="flex items-center justify-between w-full shrink-0">
         <div className="flex items-center gap-2">
           <Button
             type="button"
             variant={isComparing ? 'secondary' : 'outline'}
-            size="default"
+            size="sm"
             onClick={() => setIsComparing(!isComparing)}
-            className="text-sm font-medium h-10 px-4"
+            className="text-xs font-medium h-8 px-3"
           >
-            <SplitSquareVertical className="w-4 h-4" />
+            <SplitSquareVertical className="w-3.5 h-3.5" />
             <span>Before / After Slider</span>
           </Button>
         </div>
 
         {/* Zoom Controls */}
-        <div className="flex items-center gap-1 border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 p-1 rounded-lg shadow-2xs">
+        <div className="flex items-center gap-0.5 border border-border bg-card p-0.5 rounded-lg shadow-2xs">
           <Button
             type="button"
             variant="ghost"
             size="icon"
             onClick={handleZoomOut}
-            className="h-8 w-8 text-zinc-600 dark:text-zinc-400"
+            className="h-7 w-7 text-muted-foreground hover:text-foreground"
             title="Perkecil"
           >
-            <ZoomOut className="w-4 h-4" />
+            <ZoomOut className="w-3.5 h-3.5" />
           </Button>
           <button
             type="button"
             onClick={handleResetZoom}
-            className="px-2.5 text-sm font-mono font-medium text-zinc-700 dark:text-zinc-300 hover:text-zinc-950 dark:hover:text-zinc-50 cursor-pointer"
+            className="px-2 text-xs font-mono font-medium text-foreground hover:text-foreground/80 cursor-pointer"
             title="Reset Ukuran"
           >
             {Math.round(scale * 100)}%
@@ -214,42 +214,42 @@ export const EditorCanvas: React.FC<EditorCanvasProps> = ({
             variant="ghost"
             size="icon"
             onClick={handleZoomIn}
-            className="h-8 w-8 text-zinc-600 dark:text-zinc-400"
+            className="h-7 w-7 text-muted-foreground hover:text-foreground"
             title="Perbesar"
           >
-            <ZoomIn className="w-4 h-4" />
+            <ZoomIn className="w-3.5 h-3.5" />
           </Button>
           <Button
             type="button"
             variant="ghost"
             size="icon"
             onClick={handleResetZoom}
-            className="h-8 w-8 text-zinc-600 dark:text-zinc-400 border-l border-zinc-200 dark:border-zinc-800 rounded-none pl-2"
+            className="h-7 w-7 text-muted-foreground hover:text-foreground border-l border-border rounded-none pl-1.5"
             title="Sesuaikan Layar"
           >
-            <Maximize2 className="w-4 h-4" />
+            <Maximize2 className="w-3.5 h-3.5" />
           </Button>
         </div>
       </div>
 
-      {/* Main Canvas Container - Spacious & Clear */}
+      {/* Main Canvas Container - Dynamically fills all remaining vertical space */}
       <div
         ref={containerRef}
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
         onMouseLeave={handleMouseLeave}
-        className={`relative w-full h-[480px] sm:h-[560px] lg:h-[620px] rounded-2xl overflow-hidden border border-zinc-200 dark:border-zinc-800 select-none flex items-center justify-center shadow-xs ${
-          bgConfig.type === 'transparent' ? 'bg-checkerboard' : 'bg-zinc-900'
+        className={`relative flex-1 min-h-0 w-full rounded-xl overflow-hidden border border-border select-none flex items-center justify-center shadow-xs p-2 ${
+          bgConfig.type === 'transparent' ? 'bg-checkerboard' : 'bg-muted'
         } ${isBrushActive ? 'cursor-none' : scale > 1 ? 'cursor-grab' : 'cursor-default'}`}
       >
         {/* Comparison Labels */}
         {isComparing && (
           <>
-            <div className="absolute top-4 left-4 z-10 pointer-events-none px-3 py-1 rounded-md bg-black/75 backdrop-blur-xs text-xs font-semibold text-white shadow">
+            <div className="absolute top-3 left-3 z-10 pointer-events-none px-2.5 py-1 rounded-md bg-background/85 text-foreground border border-border backdrop-blur-xs text-[11px] font-semibold shadow-xs">
               Foto Asli
             </div>
-            <div className="absolute top-4 right-4 z-10 pointer-events-none px-3 py-1 rounded-md bg-black/75 backdrop-blur-xs text-xs font-semibold text-white shadow">
+            <div className="absolute top-3 right-3 z-10 pointer-events-none px-2.5 py-1 rounded-md bg-background/85 text-foreground border border-border backdrop-blur-xs text-[11px] font-semibold shadow-xs">
               Hasil Potongan
             </div>
           </>
@@ -261,11 +261,11 @@ export const EditorCanvas: React.FC<EditorCanvasProps> = ({
             transformOrigin: 'center center',
             transition: isPanning ? 'none' : 'transform 0.1s ease-out',
           }}
-          className="max-w-full max-h-full flex items-center justify-center"
+          className="max-w-full max-h-full flex items-center justify-center w-full h-full"
         >
           <canvas
             ref={canvasRef}
-            className="max-w-full max-h-[460px] sm:max-h-[540px] lg:max-h-[600px] object-contain shadow-sm"
+            className="max-w-full max-h-full object-contain shadow-sm"
             style={{
               aspectRatio: `${width} / ${height}`,
             }}
@@ -275,7 +275,7 @@ export const EditorCanvas: React.FC<EditorCanvasProps> = ({
         {/* Brush indicator */}
         {isBrushActive && cursorPos.visible && (
           <div
-            className="pointer-events-none absolute rounded-full border border-zinc-900 dark:border-zinc-100 -translate-x-1/2 -translate-y-1/2 bg-zinc-900/10 dark:bg-zinc-100/10"
+            className="pointer-events-none absolute rounded-full border border-primary -translate-x-1/2 -translate-y-1/2 bg-primary/10"
             style={{
               left: cursorPos.x,
               top: cursorPos.y,
@@ -295,8 +295,8 @@ export const EditorCanvas: React.FC<EditorCanvasProps> = ({
             className="absolute top-0 bottom-0 z-20 cursor-ew-resize flex items-center justify-center -translate-x-1/2"
             style={{ left: `${splitPos * 100}%` }}
           >
-            <div className="w-[2px] h-full bg-white shadow-xs" />
-            <div className="w-8 h-8 rounded-full bg-white text-zinc-900 shadow-md border border-zinc-200 flex items-center justify-center text-xs font-bold hover:scale-110 transition-transform">
+            <div className="w-[2px] h-full bg-border shadow-xs" />
+            <div className="w-7 h-7 rounded-full bg-background text-foreground shadow-md border border-border flex items-center justify-center text-[10px] font-bold hover:scale-110 transition-transform">
               ↔
             </div>
           </div>

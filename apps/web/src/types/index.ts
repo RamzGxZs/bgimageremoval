@@ -1,4 +1,4 @@
-export type ModelType = 'isnet_fp16' | 'isnet_quint8' | 'isnet';
+export type ModelType = 'bria-rmbg-1.4' | 'bria-rmbg-webgpu' | 'bria-rmbg-wasm' | string;
 
 export type BgType = 'transparent' | 'color' | 'image' | 'blur';
 

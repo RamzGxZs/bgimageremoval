@@ -67,20 +67,20 @@ export const ExportToolbar: React.FC<ExportToolbarProps> = ({
   };
 
   return (
-    <Card className="shadow-xs">
-      <CardContent className="p-5 space-y-4">
+    <Card className="shadow-xs shrink-0">
+      <CardContent className="p-3.5 space-y-3">
         {/* Format Selector & Download Primary Button */}
-        <div className="space-y-3">
-          <div className="flex items-center justify-between text-sm">
-            <span className="font-medium text-zinc-600 dark:text-zinc-400">Format Ekspor</span>
-            <div className="flex items-center bg-zinc-100 dark:bg-zinc-900 p-0.5 rounded-lg border border-zinc-200 dark:border-zinc-800">
+        <div className="space-y-2.5">
+          <div className="flex items-center justify-between text-xs">
+            <span className="font-medium text-muted-foreground">Format Ekspor</span>
+            <div className="flex items-center bg-secondary p-0.5 rounded-lg border border-border">
               <button
                 type="button"
                 onClick={() => setFormat('image/png')}
-                className={`px-3 py-1.5 rounded-md text-sm transition-colors cursor-pointer font-medium ${
+                className={`px-2.5 py-1 rounded text-xs transition-colors cursor-pointer font-medium ${
                   format === 'image/png'
-                    ? 'bg-white dark:bg-zinc-950 text-zinc-950 dark:text-zinc-50 shadow-xs'
-                    : 'text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100'
+                    ? 'bg-background text-foreground shadow-xs font-semibold'
+                    : 'text-muted-foreground hover:text-foreground'
                 }`}
               >
                 PNG
@@ -88,10 +88,10 @@ export const ExportToolbar: React.FC<ExportToolbarProps> = ({
               <button
                 type="button"
                 onClick={() => setFormat('image/webp')}
-                className={`px-3 py-1.5 rounded-md text-sm transition-colors cursor-pointer font-medium ${
+                className={`px-2.5 py-1 rounded text-xs transition-colors cursor-pointer font-medium ${
                   format === 'image/webp'
-                    ? 'bg-white dark:bg-zinc-950 text-zinc-950 dark:text-zinc-50 shadow-xs'
-                    : 'text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100'
+                    ? 'bg-background text-foreground shadow-xs font-semibold'
+                    : 'text-muted-foreground hover:text-foreground'
                 }`}
               >
                 WebP
@@ -102,34 +102,34 @@ export const ExportToolbar: React.FC<ExportToolbarProps> = ({
           <Button
             type="button"
             variant="default"
-            size="lg"
+            size="default"
             onClick={handleDownload}
             disabled={isExporting}
-            className="w-full justify-center h-12 text-base font-semibold"
+            className="w-full justify-center h-10 text-sm font-semibold"
           >
-            <Download className="w-5 h-5" />
+            <Download className="w-4 h-4" />
             <span>Unduh {format === 'image/png' ? 'PNG' : 'WebP'}</span>
           </Button>
         </div>
 
         {/* Secondary Action Buttons */}
-        <div className="grid grid-cols-2 gap-2.5 pt-1 border-t border-zinc-200 dark:border-zinc-800">
+        <div className="grid grid-cols-2 gap-2 pt-1 border-t border-border">
           <Button
             type="button"
             variant="outline"
-            size="default"
+            size="sm"
             onClick={handleCopyClipboard}
             disabled={isExporting}
-            className="text-sm font-medium h-10 justify-center"
+            className="text-xs font-medium h-8 justify-center px-2"
           >
             {copied ? (
               <>
-                <Check className="w-4 h-4" />
+                <Check className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
                 <span>Tersalin</span>
               </>
             ) : (
               <>
-                <Copy className="w-4 h-4" />
+                <Copy className="w-3.5 h-3.5" />
                 <span>Copy Image</span>
               </>
             )}
@@ -139,19 +139,19 @@ export const ExportToolbar: React.FC<ExportToolbarProps> = ({
             <Button
               type="button"
               variant="outline"
-              size="default"
+              size="sm"
               onClick={handleCloudSave}
               disabled={isSavingToCloud}
-              className="text-sm font-medium h-10 justify-center"
+              className="text-xs font-medium h-8 justify-center px-2"
             >
               {savedCloud ? (
                 <>
-                  <Check className="w-4 h-4" />
+                  <Check className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
                   <span>Tersimpan</span>
                 </>
               ) : (
                 <>
-                  <CloudUpload className="w-4 h-4" />
+                  <CloudUpload className="w-3.5 h-3.5" />
                   <span>{isSavingToCloud ? 'Menyimpan...' : 'Simpan Cloud'}</span>
                 </>
               )}
@@ -162,15 +162,15 @@ export const ExportToolbar: React.FC<ExportToolbarProps> = ({
         </div>
 
         {/* Reset / Change Image Link */}
-        <div className="pt-1 flex justify-center">
+        <div className="pt-0.5 flex justify-center">
           <Button
             type="button"
             variant="ghost"
-            size="default"
+            size="sm"
             onClick={onReset}
-            className="text-sm text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 h-9"
+            className="text-xs text-muted-foreground hover:text-foreground h-7"
           >
-            <RotateCcw className="w-4 h-4" />
+            <RotateCcw className="w-3.5 h-3.5" />
             <span>Ganti Gambar Lain</span>
           </Button>
         </div>

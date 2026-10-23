@@ -1,11 +1,55 @@
+import fs from 'node:fs'
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 import tailwindcss from '@tailwindcss/vite'
 import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vite'
 import { VitePWA } from 'vite-plugin-pwa'
 
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
+
+function serveOrtAssets() {
+  const handler = (
+    req: import('node:http').IncomingMessage,
+    res: import('node:http').ServerResponse,
+    next: () => void
+  ) => {
+    const rawUrl = req.url ? req.url.split('?')[0] : ''
+    if (rawUrl.startsWith('/ort/')) {
+      const relativePath = rawUrl.replace(/^\/ort\//, '')
+      const filePath = path.resolve(__dirname, 'public/ort', relativePath)
+      if (fs.existsSync(filePath) && fs.statSync(filePath).isFile()) {
+        const ext = path.extname(filePath)
+        if (ext === '.wasm') {
+          res.setHeader('Content-Type', 'application/wasm')
+        } else if (ext === '.mjs' || ext === '.js') {
+          res.setHeader('Content-Type', 'application/javascript')
+        }
+        res.setHeader('Cross-Origin-Opener-Policy', 'same-origin')
+        res.setHeader('Cross-Origin-Embedder-Policy', 'credentialless')
+        res.setHeader('Cache-Control', 'no-cache')
+        fs.createReadStream(filePath).pipe(res)
+        return
+      }
+    }
+    next()
+  }
+
+  return {
+    name: 'serve-ort-assets',
+    configureServer(server: import('vite').ViteDevServer) {
+      server.middlewares.use(handler)
+    },
+    configurePreviewServer(server: import('vite').PreviewServer) {
+      server.middlewares.use(handler)
+    },
+  }
+}
+
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [
+    serveOrtAssets(),
     react(),
     tailwindcss(),
     VitePWA({
@@ -48,24 +92,8 @@ export default defineConfig({
         ],
       },
       workbox: {
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,wasm}'],
-        maximumFileSizeToCacheInBytes: 35 * 1024 * 1024, // 35MB for ONNX runtime wasm bundle
-        runtimeCaching: [
-          {
-            urlPattern: /^https:\/\/staticimgly\.com\/.*$/i,
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'imgly-assets-cache',
-              expiration: {
-                maxEntries: 60,
-                maxAgeSeconds: 60 * 60 * 24 * 30, // 30 days
-              },
-              cacheableResponse: {
-                statuses: [0, 200],
-              },
-            },
-          },
-        ],
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,wasm,onnx,json}'],
+        maximumFileSizeToCacheInBytes: 65 * 1024 * 1024, // 65MB for RMBG-1.4 model and ONNX wasm
       },
       devOptions: {
         enabled: true,
