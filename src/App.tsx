@@ -16,12 +16,12 @@ import { PWAPrompt } from './components/PWAPrompt';
 import { useBgRemoval } from './hooks/useBgRemoval';
 import { useCanvasCompositor } from './hooks/useCanvasCompositor';
 import type { ModelType, BgConfig, BrushConfig } from './types';
-import { uploadHistoryImage } from './lib/api';
+import { saveLocalHistory } from './lib/localHistory';
 import { Button } from './components/ui/button';
 import { Badge } from './components/ui/badge';
 
 export function App() {
-  const [selectedModel, setSelectedModel] = useState<ModelType>('bria-rmbg-1.4');
+  const [selectedModel, setSelectedModel] = useState<ModelType>('imgly');
   const [autoResize, setAutoResize] = useState<boolean>(true);
   const [currentFilename, setCurrentFilename] = useState<string>('image.png');
   const [bgImageName, setBgImageName] = useState<string | null>(null);
@@ -64,9 +64,8 @@ export function App() {
   const [isBrushActive, setIsBrushActive] = useState<boolean>(false);
 
   const [isHistoryOpen, setIsHistoryOpen] = useState<boolean>(false);
-  const [isSavingToCloud, setIsSavingToCloud] = useState<boolean>(false);
 
-  const { isProcessing, progress, result, processImage, reset: resetRemoval } =
+  const { isProcessing, progress, result, processImage, reset: resetRemoval, loadResult } =
     useBgRemoval();
 
   const {
@@ -120,11 +119,29 @@ export function App() {
     setBgConfig((prev) => ({ ...prev, type: 'transparent' }));
     setIsBrushActive(false);
 
-    await processImage(file, {
+    const res = await processImage(file, {
       model: selectedModel,
       autoResize,
       maxDimension: 2048,
     });
+
+    if (res) {
+      try {
+        await saveLocalHistory({
+          originalFilename: name,
+          cutoutBlob: res.cutoutBlob,
+          originalBlob: res.originalBlob,
+          mimeType: 'image/png',
+          width: res.width,
+          height: res.height,
+          fileSizeBytes: res.cutoutBlob.size,
+          modelUsed: res.modelUsed,
+          bgConfigJson: JSON.stringify(bgConfig),
+        });
+      } catch (saveErr) {
+        console.warn('Gagal menyimpan riwayat lokal:', saveErr);
+      }
+    }
   };
 
   const handleSelectBackgroundImage = (file: File | null) => {
@@ -143,43 +160,39 @@ export function App() {
     setIsBrushActive(false);
   };
 
-  const handleSaveToCloud = async (finalCutoutBlob: Blob) => {
-    if (!result) return;
-    setIsSavingToCloud(true);
+  const handleLoadFromHistory = async (
+    cutoutBlob: Blob,
+    originalBlob?: Blob,
+    filename?: string
+  ) => {
+    const name = filename || 'history-image.png';
+    setCurrentFilename(name);
+    setBgImageName(null);
+    setBgConfig((prev) => ({ ...prev, type: 'transparent' }));
+    setIsBrushActive(false);
+
+    const orig = originalBlob || cutoutBlob;
+    const cutoutUrl = URL.createObjectURL(cutoutBlob);
+    const originalUrl = URL.createObjectURL(orig);
+
     try {
-      await uploadHistoryImage(
-        finalCutoutBlob,
-        {
-          originalFilename: currentFilename,
-          width: result.width,
-          height: result.height,
-          modelUsed: selectedModel,
-          bgConfigJson: JSON.stringify(bgConfig),
-        },
-        result.originalBlob
-      );
+      const bitmap = await createImageBitmap(cutoutBlob);
+      const width = bitmap.width;
+      const height = bitmap.height;
+      bitmap.close();
+
+      loadResult({
+        cutoutBlob,
+        cutoutUrl,
+        originalBlob: orig,
+        originalUrl,
+        width,
+        height,
+        durationMs: 0,
+        modelUsed: selectedModel,
+      });
     } catch (err) {
-      const msg = err instanceof Error ? err.message : 'Gagal menyimpan ke cloud';
-      alert(msg);
-      throw err;
-    } finally {
-      setIsSavingToCloud(false);
-    }
-  };
-
-  const handleLoadFromHistory = async (cutoutUrl: string, originalUrl?: string, filename?: string) => {
-    try {
-      const res = await fetch(cutoutUrl);
-      const cutoutBlob = await res.blob();
-
-      let origBlob = cutoutBlob;
-      if (originalUrl) {
-        const origRes = await fetch(originalUrl);
-        origBlob = await origRes.blob();
-      }
-
-      handleImageSelected(origBlob, filename || 'history-image.png');
-    } catch {
+      console.error('Failed to load history item:', err);
       alert('Gagal memuat gambar dari riwayat.');
     }
   };
@@ -221,6 +234,8 @@ export function App() {
                   <span>{result.width}×{result.height}</span>
                   <span>•</span>
                   <span>{(result.durationMs / 1000).toFixed(1)}s</span>
+                  <span>•</span>
+                  <span>{result.modelUsed === 'imgly' ? 'IMG.LY' : 'BRIA'}</span>
                 </div>
               </div>
             </div>
@@ -233,9 +248,12 @@ export function App() {
               <span className="font-semibold text-sm sm:text-base tracking-tight text-foreground">
                 BG Remover
               </span>
-              <Badge variant="outline" className="text-[11px] font-medium px-2 py-0.5 text-emerald-600 dark:text-emerald-400 border-emerald-500/30 bg-emerald-500/10 flex items-center gap-1.5">
+              <Badge
+                variant="outline"
+                className="text-[11px] font-medium px-2 py-0.5 text-emerald-600 dark:text-emerald-400 border-emerald-500/30 bg-emerald-500/10 flex items-center gap-1.5"
+              >
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                BRIA RMBG-1.4 (Offline)
+                {selectedModel === 'imgly' ? 'IMG.LY AI (Default)' : 'BRIA RMBG-1.4 (Offline)'}
               </Badge>
             </div>
           )}
@@ -276,7 +294,7 @@ export function App() {
                 Hapus Latar Belakang
               </h1>
               <p className="text-xs sm:text-sm text-muted-foreground">
-                Unggah gambar untuk menghapus latar belakang otomatis dengan AI offline.
+                Unggah gambar untuk menghapus latar belakang otomatis langsung di browser (100% Client-Side).
               </p>
             </div>
 
@@ -325,8 +343,6 @@ export function App() {
                 onExport={(format) => exportBlob(bgConfig, format)}
                 originalFilename={currentFilename}
                 onReset={handleReset}
-                onSaveToCloud={handleSaveToCloud}
-                isSavingToCloud={isSavingToCloud}
               />
 
               <BackgroundPanel

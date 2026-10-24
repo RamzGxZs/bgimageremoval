@@ -1,6 +1,16 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Upload, Loader2, AlertCircle, Zap, Cpu, ShieldCheck, SlidersHorizontal } from 'lucide-react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import {
+  Upload,
+  Loader2,
+  AlertCircle,
+  Sparkles,
+  Layers,
+  SlidersHorizontal,
+  Check,
+  ShieldCheck,
+} from 'lucide-react';
 import type { ModelType, ProcessProgress } from '../types';
+import { Badge } from './ui/badge';
 
 interface DropzoneProps {
   onImageSelected: (file: Blob, filename?: string) => void;
@@ -16,33 +26,36 @@ export const Dropzone: React.FC<DropzoneProps> = ({
   onImageSelected,
   isProcessing,
   progress,
-  selectedModel = 'bria-rmbg-1.4',
+  selectedModel = 'imgly',
   onModelChange,
   autoResize = true,
   onAutoResizeChange,
 }) => {
   const [isDragOver, setIsDragOver] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [showSettings, setShowSettings] = useState(false);
+  const [showAdvanced, setShowAdvanced] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const validateAndSelect = (file: Blob, name?: string) => {
-    setErrorMessage(null);
-    const validTypes = ['image/jpeg', 'image/png', 'image/webp'];
+  const validateAndSelect = useCallback(
+    (file: Blob, name?: string) => {
+      setErrorMessage(null);
+      const validTypes = ['image/jpeg', 'image/png', 'image/webp'];
 
-    if (!validTypes.includes(file.type) && !name?.match(/\.(jpg|jpeg|png|webp)$/i)) {
-      setErrorMessage('Format gambar tidak didukung. Gunakan JPG, PNG, atau WebP.');
-      return;
-    }
+      if (!validTypes.includes(file.type) && !name?.match(/\.(jpg|jpeg|png|webp)$/i)) {
+        setErrorMessage('Format gambar tidak didukung. Gunakan JPG, PNG, atau WebP.');
+        return;
+      }
 
-    const maxSize = 25 * 1024 * 1024;
-    if (file.size > maxSize) {
-      setErrorMessage('Ukuran gambar maksimal 25 MB.');
-      return;
-    }
+      const maxSize = 25 * 1024 * 1024;
+      if (file.size > maxSize) {
+        setErrorMessage('Ukuran gambar maksimal 25 MB.');
+        return;
+      }
 
-    onImageSelected(file, name || (file as File).name || 'image.png');
-  };
+      onImageSelected(file, name || (file as File).name || 'image.png');
+    },
+    [onImageSelected]
+  );
 
   // Global clipboard paste (Ctrl+V / Cmd+V)
   useEffect(() => {
@@ -64,7 +77,7 @@ export const Dropzone: React.FC<DropzoneProps> = ({
 
     window.addEventListener('paste', handlePaste);
     return () => window.removeEventListener('paste', handlePaste);
-  }, [isProcessing, onImageSelected]);
+  }, [isProcessing, validateAndSelect]);
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
@@ -93,6 +106,11 @@ export const Dropzone: React.FC<DropzoneProps> = ({
       validateAndSelect(file, file.name);
     }
   };
+
+  const activeModelName =
+    selectedModel === 'imgly'
+      ? 'IMG.LY Background Removal'
+      : 'BRIA RMBG-1.4 (Offline)';
 
   return (
     <div className="w-full max-w-xl mx-auto space-y-3.5">
@@ -129,7 +147,7 @@ export const Dropzone: React.FC<DropzoneProps> = ({
             <div className="space-y-1 w-full text-center">
               <p className="text-base font-semibold text-foreground">
                 {progress?.stage === 'downloading'
-                  ? 'Menyiapkan Model AI Offline...'
+                  ? 'Menyiapkan Model AI...'
                   : 'Memotong Latar Belakang...'}
               </p>
               <p className="text-xs text-muted-foreground truncate">
@@ -146,7 +164,7 @@ export const Dropzone: React.FC<DropzoneProps> = ({
                 />
               </div>
               <div className="flex justify-between items-center text-[11px] text-muted-foreground">
-                <span>Model: BRIA RMBG-1.4 (Offline)</span>
+                <span>Model: {activeModelName}</span>
                 <span className="font-mono font-medium text-foreground">
                   {progress?.percent || 0}%
                 </span>
@@ -180,77 +198,123 @@ export const Dropzone: React.FC<DropzoneProps> = ({
         )}
       </div>
 
-      {/* AI Model Controls & Offline Information */}
-      <div className="rounded-xl border border-border bg-card/60 p-3 space-y-2.5">
+      {/* AI Engine Selection Section */}
+      <div className="rounded-xl border border-border bg-card/60 p-3.5 space-y-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-            <span className="text-xs font-medium text-muted-foreground">
-              100% Offline AI — BRIA RMBG-1.4 SOTA
+            <span className="text-xs font-semibold text-foreground">
+              Pilihan Mesin AI (100% In-Browser)
             </span>
           </div>
 
           <button
             type="button"
-            onClick={() => setShowSettings(!showSettings)}
+            onClick={() => setShowAdvanced(!showAdvanced)}
             className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground font-medium transition-colors cursor-pointer"
           >
             <SlidersHorizontal className="w-3.5 h-3.5" />
-            <span>{showSettings ? 'Tutup Pengaturan' : 'Opsi AI'}</span>
+            <span>{showAdvanced ? 'Tutup Pengaturan' : 'Opsi Lanjutan'}</span>
           </button>
         </div>
 
-        {/* Collapsible AI settings */}
-        {showSettings && (
-          <div className="pt-2.5 border-t border-border space-y-2.5 animate-in fade-in-50 duration-150">
-            {/* Model Mode Selection */}
-            <div className="space-y-1">
-              <label className="text-[11px] font-medium text-muted-foreground">
-                Mode Akselerasi Perangkat:
-              </label>
-              <div className="grid grid-cols-2 gap-2">
-                <button
-                  type="button"
-                  onClick={() => onModelChange?.('bria-rmbg-1.4')}
-                  className={`flex items-center gap-2 p-2 rounded-lg border text-xs text-left transition-all cursor-pointer ${
-                    selectedModel === 'bria-rmbg-1.4' || selectedModel === 'bria-rmbg-webgpu'
-                      ? 'border-primary bg-background font-medium shadow-2xs text-foreground'
-                      : 'border-border hover:bg-accent text-muted-foreground hover:text-foreground'
+        {/* 2 AI Options Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+          {/* Option 1: imgly (Default) */}
+          <button
+            type="button"
+            disabled={isProcessing}
+            onClick={() => onModelChange?.('imgly')}
+            className={`p-3 rounded-xl border text-left transition-all relative flex flex-col justify-between cursor-pointer ${
+              selectedModel === 'imgly'
+                ? 'border-primary bg-primary/5 ring-1 ring-primary/40 shadow-xs'
+                : 'border-border bg-background/50 hover:bg-accent/40 text-muted-foreground'
+            }`}
+          >
+            <div className="flex items-start justify-between gap-2 mb-1.5">
+              <div className="flex items-center gap-2">
+                <div
+                  className={`w-6 h-6 rounded-md flex items-center justify-center shrink-0 ${
+                    selectedModel === 'imgly'
+                      ? 'bg-primary text-primary-foreground'
+                      : 'bg-secondary text-muted-foreground'
                   }`}
                 >
-                  <Zap className="w-3.5 h-3.5 text-amber-500 shrink-0" />
-                  <div>
-                    <div className="font-semibold text-foreground text-xs">Auto (WebGPU)</div>
-                    <div className="text-[10px] text-muted-foreground">Kencang via GPU perangkat</div>
+                  <Sparkles className="w-3.5 h-3.5" />
+                </div>
+                <div>
+                  <div className="font-semibold text-xs text-foreground flex items-center gap-1.5">
+                    <span>IMG.LY AI</span>
+                    <Badge
+                      variant="outline"
+                      className="text-[10px] px-1.5 py-0 text-primary border-primary/30 bg-primary/10"
+                    >
+                      Default
+                    </Badge>
                   </div>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => onModelChange?.('bria-rmbg-wasm')}
-                  className={`flex items-center gap-2 p-2 rounded-lg border text-xs text-left transition-all cursor-pointer ${
-                    selectedModel === 'bria-rmbg-wasm'
-                      ? 'border-primary bg-background font-medium shadow-2xs text-foreground'
-                      : 'border-border hover:bg-accent text-muted-foreground hover:text-foreground'
-                  }`}
-                >
-                  <Cpu className="w-3.5 h-3.5 text-blue-500 shrink-0" />
-                  <div>
-                    <div className="font-semibold text-foreground text-xs">WASM Multi-thread</div>
-                    <div className="text-[10px] text-muted-foreground">Universal di semua CPU</div>
-                  </div>
-                </button>
+                </div>
               </div>
+              {selectedModel === 'imgly' && (
+                <div className="w-4 h-4 rounded-full bg-primary text-primary-foreground flex items-center justify-center shrink-0">
+                  <Check className="w-2.5 h-2.5 stroke-[3]" />
+                </div>
+              )}
             </div>
+            <p className="text-[11px] text-muted-foreground leading-relaxed">
+              Model in-browser dari IMG.LY, proses cepat dan ringan untuk berbagai foto.
+            </p>
+          </button>
 
-            {/* Auto-resize toggle */}
-            <div className="flex items-center justify-between pt-0.5">
+          {/* Option 2: BRIA RMBG-1.4 */}
+          <button
+            type="button"
+            disabled={isProcessing}
+            onClick={() => onModelChange?.('bria-rmbg-1.4')}
+            className={`p-3 rounded-xl border text-left transition-all relative flex flex-col justify-between cursor-pointer ${
+              selectedModel === 'bria-rmbg-1.4'
+                ? 'border-primary bg-primary/5 ring-1 ring-primary/40 shadow-xs'
+                : 'border-border bg-background/50 hover:bg-accent/40 text-muted-foreground'
+            }`}
+          >
+            <div className="flex items-start justify-between gap-2 mb-1.5">
+              <div className="flex items-center gap-2">
+                <div
+                  className={`w-6 h-6 rounded-md flex items-center justify-center shrink-0 ${
+                    selectedModel === 'bria-rmbg-1.4'
+                      ? 'bg-primary text-primary-foreground'
+                      : 'bg-secondary text-muted-foreground'
+                  }`}
+                >
+                  <Layers className="w-3.5 h-3.5" />
+                </div>
+                <div>
+                  <div className="font-semibold text-xs text-foreground">
+                    BRIA RMBG-1.4
+                  </div>
+                </div>
+              </div>
+              {selectedModel === 'bria-rmbg-1.4' && (
+                <div className="w-4 h-4 rounded-full bg-primary text-primary-foreground flex items-center justify-center shrink-0">
+                  <Check className="w-2.5 h-2.5 stroke-[3]" />
+                </div>
+              )}
+            </div>
+            <p className="text-[11px] text-muted-foreground leading-relaxed">
+              Model SOTA resolusi tinggi berbasis ONNX offline (WebGPU / WASM).
+            </p>
+          </button>
+        </div>
+
+        {/* Collapsible Advanced Settings (e.g. Auto-resize) */}
+        {showAdvanced && (
+          <div className="pt-2.5 border-t border-border space-y-2 animate-in fade-in-50 duration-150">
+            <div className="flex items-center justify-between">
               <div>
                 <div className="text-xs font-medium text-foreground">
                   Optimasi Resolusi Maksimal (2048px)
                 </div>
                 <div className="text-[10px] text-muted-foreground">
-                  Mencegah browser kehabisan memori RAM saat memproses foto besar
+                  Mencegah browser kehabisan memori RAM saat memproses foto resolusi besar
                 </div>
               </div>
               <input

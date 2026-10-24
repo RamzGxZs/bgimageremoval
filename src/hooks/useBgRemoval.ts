@@ -1,9 +1,10 @@
 import { useState, useCallback } from 'react';
 import { env, AutoModel, AutoProcessor, RawImage } from '@huggingface/transformers';
+import { removeBackground } from '@imgly/background-removal';
 import type { ModelType, ProcessProgress } from '../types';
 import { resizeImageIfNeeded } from '../lib/imageUtils';
 
-// Configure transformers.js for 100% offline local execution
+// Configure transformers.js for offline local execution of BRIA RMBG-1.4
 env.allowRemoteModels = false;
 env.allowLocalModels = true;
 env.localModelPath = '/models/';
@@ -34,9 +35,10 @@ export interface BgRemovalResult {
   width: number;
   height: number;
   durationMs: number;
+  modelUsed: ModelType;
 }
 
-// Module-level singletons for offline model & processor to prevent repeated loading
+// Module-level singletons for BRIA model & processor to prevent repeated loading
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 let cachedProcessor: any = null;
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -65,7 +67,7 @@ export function useBgRemoval() {
       } = {}
     ): Promise<BgRemovalResult | null> => {
       const {
-        model = 'bria-rmbg-1.4',
+        model = 'imgly',
         autoResize = true,
         maxDimension = 2048,
       } = options;
@@ -91,8 +93,8 @@ export function useBgRemoval() {
         if (autoResize) {
           setProgress((prev) => ({
             ...prev,
-            current: 15,
-            percent: 15,
+            current: 10,
+            percent: 10,
             message: 'Mengoptimalkan ukuran gambar...',
           }));
           const resized = await resizeImageIfNeeded(file, maxDimension);
@@ -101,8 +103,77 @@ export function useBgRemoval() {
           imgHeight = resized.height;
         }
 
-        // Step 2: Determine execution device (WebGPU with WASM fallback, or forced WASM)
-        const targetDevice = model === 'bria-rmbg-wasm' ? 'wasm' : 'webgpu';
+        // --- PATH A: @imgly/background-removal (Default) ---
+        if (model === 'imgly') {
+          setProgress({
+            stage: 'processing',
+            current: 15,
+            total: 100,
+            percent: 15,
+            message: 'Menginisialisasi IMG.LY AI...',
+          });
+
+          const cutoutBlob = await removeBackground(workingBlob, {
+            progress: (key: string, current: number, total: number) => {
+              let percent = 20;
+              if (total > 0) {
+                percent = Math.min(95, Math.max(15, Math.round((current / total) * 100)));
+              }
+              let stageMsg = 'Menghapus latar belakang dengan IMG.LY AI...';
+              if (key && key.includes('fetch')) {
+                stageMsg = `Memuat aset model IMG.LY (${percent}%)...`;
+              } else if (key && (key.includes('onnx') || key.includes('compute'))) {
+                stageMsg = `Memproses segmentasi AI (${percent}%)...`;
+              }
+
+              setProgress({
+                stage: key && key.includes('fetch') ? 'downloading' : 'processing',
+                key,
+                current,
+                total,
+                percent,
+                message: stageMsg,
+              });
+            },
+          });
+
+          // Ensure width and height are known
+          if (imgWidth === 0 || imgHeight === 0) {
+            const bitmap = await createImageBitmap(cutoutBlob);
+            imgWidth = bitmap.width;
+            imgHeight = bitmap.height;
+            bitmap.close();
+          }
+
+          const cutoutUrl = URL.createObjectURL(cutoutBlob);
+          const originalUrl = URL.createObjectURL(workingBlob);
+          const durationMs = Math.round(performance.now() - startTime);
+
+          const newResult: BgRemovalResult = {
+            cutoutBlob,
+            cutoutUrl,
+            originalBlob: workingBlob,
+            originalUrl,
+            width: imgWidth,
+            height: imgHeight,
+            durationMs,
+            modelUsed: 'imgly',
+          };
+
+          setResult(newResult);
+          setProgress({
+            stage: 'completed',
+            current: 100,
+            total: 100,
+            percent: 100,
+            message: `Selesai dalam ${(durationMs / 1000).toFixed(1)}s! (IMG.LY AI)`,
+          });
+
+          return newResult;
+        }
+
+        // --- PATH B: BRIA RMBG-1.4 (Local Transformers.js) ---
+        const targetDevice = 'webgpu';
         const MODEL_ID = 'briaai/RMBG-1.4';
 
         if (!cachedProcessor) {
@@ -122,9 +193,7 @@ export function useBgRemoval() {
             current: 40,
             total: 100,
             percent: 40,
-            message: targetDevice === 'webgpu'
-              ? 'Menginisialisasi model BRIA RMBG-1.4 (WebGPU)...'
-              : 'Menginisialisasi model BRIA RMBG-1.4 (WASM Multi-thread)...',
+            message: 'Menginisialisasi model BRIA RMBG-1.4 (WebGPU)...',
           });
 
           try {
@@ -134,27 +203,22 @@ export function useBgRemoval() {
             });
             cachedDevice = targetDevice;
           } catch (deviceErr) {
-            if (targetDevice === 'webgpu') {
-              console.warn('WebGPU gagal atau tidak didukung, beralih ke WASM:', deviceErr);
-              setProgress({
-                stage: 'downloading',
-                current: 45,
-                total: 100,
-                percent: 45,
-                message: 'Beralih ke akselerasi WebAssembly (WASM)...',
-              });
-              cachedModel = await AutoModel.from_pretrained(MODEL_ID, {
-                dtype: 'q8',
-                device: 'wasm',
-              });
-              cachedDevice = 'wasm';
-            } else {
-              throw deviceErr;
-            }
+            console.warn('WebGPU gagal atau tidak didukung, beralih ke WASM:', deviceErr);
+            setProgress({
+              stage: 'downloading',
+              current: 45,
+              total: 100,
+              percent: 45,
+              message: 'Beralih ke akselerasi WebAssembly (WASM)...',
+            });
+            cachedModel = await AutoModel.from_pretrained(MODEL_ID, {
+              dtype: 'q8',
+              device: 'wasm',
+            });
+            cachedDevice = 'wasm';
           }
         }
 
-        // Step 3: Load raw image into tensor
         setProgress({
           stage: 'processing',
           current: 55,
@@ -169,7 +233,6 @@ export function useBgRemoval() {
 
         const { pixel_values } = await cachedProcessor(rawImg);
 
-        // Step 4: Run inference
         setProgress({
           stage: 'processing',
           current: 75,
@@ -181,7 +244,6 @@ export function useBgRemoval() {
         const output = await cachedModel({ input: pixel_values });
         const outputTensor = output.output || output[0];
 
-        // Step 5: Post-process mask
         setProgress({
           stage: 'processing',
           current: 90,
@@ -194,14 +256,12 @@ export function useBgRemoval() {
           outputTensor[0].mul(255).to('uint8')
         ).resize(imgWidth, imgHeight);
 
-        // Apply alpha mask to original image
         const withAlpha = rawImg.putAlpha(mask);
 
         let cutoutBlob: Blob;
         try {
           cutoutBlob = await withAlpha.toBlob('image/png', 1.0);
         } catch {
-          // Fallback canvas if toBlob fails
           const canvas = document.createElement('canvas');
           canvas.width = imgWidth;
           canvas.height = imgHeight;
@@ -210,7 +270,10 @@ export function useBgRemoval() {
           imgData.data.set(withAlpha.data);
           ctx.putImageData(imgData, 0, 0);
           cutoutBlob = await new Promise<Blob>((resolve, reject) => {
-            canvas.toBlob((b) => (b ? resolve(b) : reject(new Error('Gagal mengekspor blob cutout'))), 'image/png');
+            canvas.toBlob(
+              (b) => (b ? resolve(b) : reject(new Error('Gagal mengekspor blob cutout'))),
+              'image/png'
+            );
           });
         }
 
@@ -226,6 +289,7 @@ export function useBgRemoval() {
           width: imgWidth,
           height: imgHeight,
           durationMs,
+          modelUsed: 'bria-rmbg-1.4',
         };
 
         setResult(newResult);
@@ -234,7 +298,9 @@ export function useBgRemoval() {
           current: 100,
           total: 100,
           percent: 100,
-          message: `Selesai dalam ${(durationMs / 1000).toFixed(1)}s! (${cachedDevice === 'webgpu' ? 'WebGPU' : 'WASM'})`,
+          message: `Selesai dalam ${(durationMs / 1000).toFixed(1)}s! (BRIA RMBG-1.4 - ${
+            cachedDevice === 'webgpu' ? 'WebGPU' : 'WASM'
+          })`,
         });
 
         return newResult;
@@ -277,12 +343,19 @@ export function useBgRemoval() {
     });
   }, [result]);
 
+  const loadResult = useCallback((customResult: BgRemovalResult) => {
+    setResult(customResult);
+    setError(null);
+    setIsProcessing(false);
+  }, []);
+
   return {
     isProcessing,
     progress,
     result,
     error,
     processImage,
+    loadResult,
     reset,
   };
 }

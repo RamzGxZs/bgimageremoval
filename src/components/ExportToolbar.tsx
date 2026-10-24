@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Download, Copy, Check, CloudUpload, RotateCcw } from 'lucide-react';
+import { Download, Copy, Check, RotateCcw } from 'lucide-react';
 import { copyImageToClipboard, downloadBlob } from '../lib/imageUtils';
 import { Button } from './ui/button';
 import { Card, CardContent } from './ui/card';
@@ -8,21 +8,16 @@ interface ExportToolbarProps {
   onExport: (format: 'image/png' | 'image/webp') => Promise<Blob>;
   originalFilename: string;
   onReset: () => void;
-  onSaveToCloud?: (cutoutBlob: Blob) => Promise<void>;
-  isSavingToCloud?: boolean;
 }
 
 export const ExportToolbar: React.FC<ExportToolbarProps> = ({
   onExport,
   originalFilename,
   onReset,
-  onSaveToCloud,
-  isSavingToCloud = false,
 }) => {
   const [format, setFormat] = useState<'image/png' | 'image/webp'>('image/png');
   const [isExporting, setIsExporting] = useState(false);
   const [copied, setCopied] = useState(false);
-  const [savedCloud, setSavedCloud] = useState(false);
 
   const cleanBaseName = originalFilename.replace(/\.[^/.]+$/, '');
 
@@ -51,18 +46,6 @@ export const ExportToolbar: React.FC<ExportToolbarProps> = ({
       alert('Gagal menyalin gambar ke clipboard.');
     } finally {
       setIsExporting(false);
-    }
-  };
-
-  const handleCloudSave = async () => {
-    if (!onSaveToCloud) return;
-    try {
-      const blob = await onExport('image/png');
-      await onSaveToCloud(blob);
-      setSavedCloud(true);
-      setTimeout(() => setSavedCloud(false), 3000);
-    } catch (err) {
-      console.error('Cloud save error:', err);
     }
   };
 
@@ -112,67 +95,42 @@ export const ExportToolbar: React.FC<ExportToolbarProps> = ({
           </Button>
         </div>
 
-        {/* Secondary Action Buttons */}
-        <div className="grid grid-cols-2 gap-2 pt-1 border-t border-border">
+        {/* Secondary Action: Copy Image to Clipboard */}
+        <div className="pt-2 border-t border-border space-y-2">
           <Button
             type="button"
             variant="outline"
             size="sm"
             onClick={handleCopyClipboard}
             disabled={isExporting}
-            className="text-xs font-medium h-8 justify-center px-2"
+            className="w-full text-xs font-medium h-8.5 justify-center"
           >
             {copied ? (
               <>
                 <Check className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
-                <span>Tersalin</span>
+                <span>Gambar Tersalin ke Clipboard!</span>
               </>
             ) : (
               <>
                 <Copy className="w-3.5 h-3.5" />
-                <span>Copy Image</span>
+                <span>Salin Gambar ke Clipboard</span>
               </>
             )}
           </Button>
 
-          {onSaveToCloud ? (
+          {/* Reset / Change Image Link */}
+          <div className="pt-0.5 flex justify-center">
             <Button
               type="button"
-              variant="outline"
+              variant="ghost"
               size="sm"
-              onClick={handleCloudSave}
-              disabled={isSavingToCloud}
-              className="text-xs font-medium h-8 justify-center px-2"
+              onClick={onReset}
+              className="text-xs text-muted-foreground hover:text-foreground h-7"
             >
-              {savedCloud ? (
-                <>
-                  <Check className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
-                  <span>Tersimpan</span>
-                </>
-              ) : (
-                <>
-                  <CloudUpload className="w-3.5 h-3.5" />
-                  <span>{isSavingToCloud ? 'Menyimpan...' : 'Simpan Cloud'}</span>
-                </>
-              )}
+              <RotateCcw className="w-3.5 h-3.5" />
+              <span>Ganti Gambar Lain</span>
             </Button>
-          ) : (
-            <div />
-          )}
-        </div>
-
-        {/* Reset / Change Image Link */}
-        <div className="pt-0.5 flex justify-center">
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            onClick={onReset}
-            className="text-xs text-muted-foreground hover:text-foreground h-7"
-          >
-            <RotateCcw className="w-3.5 h-3.5" />
-            <span>Ganti Gambar Lain</span>
-          </Button>
+          </div>
         </div>
       </CardContent>
     </Card>

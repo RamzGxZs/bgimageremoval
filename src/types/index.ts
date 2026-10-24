@@ -1,4 +1,4 @@
-export type ModelType = 'bria-rmbg-1.4' | 'bria-rmbg-webgpu' | 'bria-rmbg-wasm' | string;
+export type ModelType = 'imgly' | 'bria-rmbg-1.4';
 
 export type BgType = 'transparent' | 'color' | 'image' | 'blur';
 
@@ -35,6 +35,8 @@ export interface BrushConfig {
 export interface HistoryItem {
   id: string;
   originalFilename: string;
+  cutoutBlob: Blob;
+  originalBlob?: Blob;
   cutoutUrl: string;
   originalUrl?: string;
   mimeType: string;

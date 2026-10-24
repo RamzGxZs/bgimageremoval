@@ -96,7 +96,8 @@ export default defineConfig({
         maximumFileSizeToCacheInBytes: 65 * 1024 * 1024, // 65MB for RMBG-1.4 model and ONNX wasm
       },
       devOptions: {
-        enabled: true,
+        enabled: false,
+        suppressWarnings: true,
       },
     }),
   ],
@@ -104,12 +105,6 @@ export default defineConfig({
     headers: {
       'Cross-Origin-Opener-Policy': 'same-origin',
       'Cross-Origin-Embedder-Policy': 'credentialless',
-    },
-    proxy: {
-      '/api': {
-        target: 'http://127.0.0.1:8787',
-        changeOrigin: true,
-      },
     },
   },
   preview: {
